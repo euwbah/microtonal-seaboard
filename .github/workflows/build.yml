@@ -40,8 +40,8 @@ jobs:
             TARGET: macos
             CMD_BUILD: >
               pyinstaller -F -n microtonal-seaboard main.py &&
-              cd dist/ && ls &&
-              zip -r9 microtonal-seaboard-macos.zip ../mappings microtonal-seaboard/
+              cd dist/ &&
+              zip -r9 microtonal-seaboard-macos.zip ../mappings microtonal-seaboard
             OUT_FILE_NAME: microtonal-seaboard-macos.zip
             ASSET_MIME: application/zip
           - os: windows-latest
