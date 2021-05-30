@@ -41,16 +41,16 @@ jobs:
             CMD_BUILD: >
               pyinstaller -F -n microtonal-seaboard main.py &&
               cd dist/ && ls &&
-              zip -r9 microtonal-seaboard.zip ../mappings microtonal-seaboard.app
-            OUT_FILE_NAME: microtonal-seaboard.zip
+              zip -r9 microtonal-seaboard-macos.zip ../mappings microtonal-seaboard.app
+            OUT_FILE_NAME: microtonal-seaboard-macos.zip
             ASSET_MIME: application/zip
           - os: windows-latest
             TARGET: windows
             CMD_BUILD: >
               pyinstaller -F -n microtonal-seaboard main.py &&
               cd dist/ &&
-              tar -a -c -f microtonal-seaboard.zip ../mappings microtonal-seaboard.exe
-            OUT_FILE_NAME: microtonal-seaboard.zip
+              tar -a -c -f microtonal-seaboard-windows.zip ../mappings microtonal-seaboard.exe
+            OUT_FILE_NAME: microtonal-seaboard-windows.zip
             ASSET_MIME: application/vnd.microsoft.portable-executable
     steps:
     - uses: actions/checkout@v1
