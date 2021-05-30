@@ -1,16 +1,19 @@
-/   31 edo 1/4-comma meantone mapping for seaboard.
+/   31 edo mapping for seaboard.
 /   pitch bends in MPE mode are based on A4 = 440Hz
+/   
+/   Key splits (bottom-to-top):
+/       White key: down, natural, up, natural, up
+/       Black key: sharp, flat, up of the next white key
 /   
 /   Supports MIDI mode, A4 is the anchoring equivalent note.
 /   Each diesis raises midi output by 1 semitone.
-/   Useful for VSTs like Pianoteq / Kontakt.
 /   
 /   Note: in MIDI mode, a +1 octave shift on the VST has to be accounted
 /         for with -31 semitone output offset configuration in the split offset
 /         configuration. To get the 'full range' of a piano, one will
-/         need to open 2 instances of Pianoteq / Kontakt and apply -2/+2
+/         need to open 2 instances of Pianoteq/Kontakt and apply -2/+2
 /         octave offsets on each instance respectively.
-/         The split is to be configured on the seaboard input note E4.
+/         The split is to be set on the note E4.
 /   
 /         This way, input notes ranging from C-1 to D#4 will get sent to
 /         channel 0 with a +62 dieses output offsetting the -2 octaves

@@ -27,6 +27,7 @@ def select_splits():
         splitpos = []
 
         prev_s = 0
+        problem = False
         for s in split_pos_strs:
             try:
                 pos = convert.notename_to_midinum(s)
@@ -34,11 +35,15 @@ def select_splits():
                     splitpos.append(pos)
                 else:
                     print('Split positions must be in ascending order!')
-                    continue
+                    problem = True
+                    break
             except Exception:
                 print(f'{s} is not a valid note name')
-                continue
-        break
+                problem = True
+                break
+
+        if not problem:
+            break
 
     splitpos.append(128)
 
@@ -47,7 +52,7 @@ def select_splits():
     prev_split_pos = 0
     for ch, s in enumerate(splitpos):
         while True:
-            i = input(f'enter midi output offset for split range channel {ch} '
+            i = input(f'enter midi output offset for split range channel {ch + 1} '
                   f'(range {convert.midinum_to_12edo_name(prev_split_pos)} - '
                   f'{convert.midinum_to_12edo_name(s - 1)})')
 
