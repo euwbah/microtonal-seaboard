@@ -52,6 +52,10 @@ def midinum_to_12edo_name(notenum) -> str:
 def notename_to_midinum(notename: str) -> int:
     try:
         note, octave = notename[:-1], int(notename[-1])
+        if note.endswith('-'):
+            # handle negative octaves
+            note = note[:-1]
+            octave = -octave
         return __NOTENUMSLOWERCASE[note.lower()] + 12 * (octave + 1)
     except Exception:
         raise ValueError(f'{notename} is an invalid note name')
@@ -64,7 +68,7 @@ def cents_to_pitchbend(cents, pb_range) -> int:
     :param pb_range: pitch bend range in either direction (+/-) as per setting on Roli Dashboard / Equator
     :return:
     """
-    pb = 8192 + 16384 * cents / pb_range * 200
+    pb = 8192 + 16384 * cents / (pb_range * 200)
     if 0 > pb > 16383:
         print(f'warning: pitchbend range too small to bend {cents} cents')
     return int(max(0, min(16383, pb)))
@@ -110,3 +114,24 @@ def to_relative_slide_output(abs74, init74) -> int:
         return min(127, max(0, int(64 * abs74 / init74)))
     elif abs74 > init74:
         return min(127, max(0, int(64 + 64 * (abs74 - init74) / (127 - init74))))
+
+
+def to_bipolar_slide_output(abs74, init74) -> int:
+    """
+    Converts absolute cc74 slide to bipolar cc74 slide based
+    on initial cc74 position.
+
+    Assumes a graph of 2 linear gradients. Perhaps a better algorithm
+    would be to smooth out the curve?
+
+    :param abs74: The absolute cc74 value
+    :param init74: The initial cc74 value when the note was struck
+    :return: The relative cc74 value to send
+    """
+
+    if abs74 == init74:
+        return 0
+    elif abs74 < init74:
+        return min(127, max(0, int(127 * (init74 - abs74) / init74)))
+    elif abs74 > init74:
+        return min(127, max(0, int(127 * (abs74 - init74) / (127 - init74))))

@@ -1,32 +1,20 @@
 import os.path
 import traceback
-from enum import Enum
 
 from rtmidi import MidiIn, MidiOut
 from rtmidi.midiutil import open_midiinput, open_midioutput
 
 import convert
+from configs import SlideMode, CONFIGS
 from handler import MidiInputHandler
 from mapping import Mapping, MapParsingError
-from probe_ports import print_all_midi_ports
 from split import SplitData
 
 import tkinter.filedialog as filedialog
+import tkinter as tk
 
-class SlideMode(Enum):
-    NONE = 1        # default cc74 to 64
-    PRESS = 2       # cc74 is mapped to Channel Pressure
-    RELATIVE = 3    # calculated with respect to initial locked cc74 value (initial position is 64)
-    ABSOLUTE = 4    # zero damns given, just forward all cc74 messages as is.
-
-class CONFIGS:
-    MPE_MODE = True
-    SLIDE_MODE = SlideMode.RELATIVE
-    SPLITS = SplitData()
-    PITCH_BEND_RANGE = 24
-    MAPPING: Mapping = None
-    TOGGLE_SUSTAIN = False
-
+root = tk.Tk()
+root.withdraw()
 
 def select_splits():
     while True:
@@ -79,12 +67,13 @@ def select_mapping(search_default=False):
     print('SEABOARD MAPPING SELECTION')
     print('')
 
+    root.deiconify()
+
     if search_default:
         if os.path.isfile('mappings/default.sbmap'):
-            print('default.sbmap mapping found. Using default mapping.')
             try:
                 CONFIGS.MAPPING = Mapping('mappings/default.sbmap')
-                print('Loaded mapping successfully\n')
+                print('default.sbmap mapping found. Using default mapping.')
                 return
             except MapParsingError as e:
                 print(e)
@@ -105,14 +94,14 @@ def select_mapping(search_default=False):
 
         try:
             CONFIGS.MAPPING = Mapping(path)
-            print('Loaded mapping successfully\n')
-            return
+            break
         except MapParsingError as e:
             print(e)
         except Exception:
             print('unknown error:')
             traceback.print_exc()
 
+    root.withdraw()
 
 def select_pitch_bend_range():
     while True:
@@ -141,10 +130,10 @@ if __name__ == '__main__':
     print('')
 
     print('Select the Seaboard MIDI input device:')
-    seaboard: MidiIn = open_midiinput()
+    seaboard: MidiIn = open_midiinput()[0]
 
     print('Select the virtual MIDI output port that gets sent to the DAW/VST/Program:')
-    virtual_port: MidiOut = open_midioutput()
+    virtual_port: MidiOut = open_midioutput()[0]
 
     print('')
     select_pitch_bend_range()
@@ -156,18 +145,19 @@ if __name__ == '__main__':
 
     print("""
     supported commands:
-    mpe                     set to mpe mode (default)
-    midi                    set to midi mode
-    slide none|prs|rel|abs  set slide message forwarding mode.
-                                none: cc74 is always 64
-                                 prs: cc74 mapped to press dimension
-                                 rel: (default) cc74 emulates relative slide mode
-                                 abs: cc74 emulates absolute slide mode
-    split                   set split points (for midi mode)
-    map                     select new .sbmap file
-    pb                      change pitch bend amount
-    sus                     toggles sustain pedal polarity
-    exit                    exit the program""")
+    mpe                         set to mpe mode (default)
+    midi                        set to midi mode
+    slide <n>|prs|rel|abs|bip   set slide message forwarding mode.
+                                    <n>: fixed slide value (choose from 0-127)
+                                    prs: map to press dimension
+                                    rel: emulate relative slide mode
+                                    abs: emulate absolute slide mode
+                                    bip: (default) emulate bipolar mode
+    split                       set split points (for midi mode)
+    map                         select new .sbmap file
+    pb                          change pitch bend amount
+    sus                         toggles sustain pedal polarity
+    exit                        exit the program""")
 
     while True:
         s = input('>> ').strip().lower()
@@ -185,17 +175,40 @@ if __name__ == '__main__':
             CONFIGS.MPE_MODE = False
         elif s.startswith('slide'):
             if 'none' in s:
-                CONFIGS.SLIDE_MODE = SlideMode.NONE
+                CONFIGS.SLIDE_MODE = SlideMode.FIXED
+                CONFIGS.SLIDE_FIXED_N = 64
                 print('Defaulting slide dimension (cc74) to 64')
-            elif 'prs' in s:
+            elif 'prs' in s or 'press' in s:
                 CONFIGS.SLIDE_MODE = SlideMode.PRESS
                 print('Forwarding press dimension to cc74')
-            elif 'rel' in s:
+            elif 'rel' in s or 'relative' in s:
                 CONFIGS.SLIDE_MODE = SlideMode.RELATIVE
                 print('Relative slide mode activated')
-            elif 'abs' in s:
+            elif 'abs' in s or 'absolute' in s:
                 CONFIGS.SLIDE_MODE = SlideMode.ABSOLUTE
                 print('Absolute slide mode activated')
+            elif 'bip' in s or 'bipolar' in s:
+                CONFIGS.SLIDE_MODE = SlideMode.BIPOLAR
+                print('Bipolar slide mode activated')
+            else:
+                try:
+                    n = int(s[5:])
+                    if 0 > n > 127:
+                        print('Default slide value must be an integer from 0-127 inclusive')
+                        continue
+
+                    CONFIGS.SLIDE_MODE = SlideMode.FIXED
+                    CONFIGS.SLIDE_FIXED_N = n
+                    continue
+                except Exception:
+                    print("""Unsupported slide mode. Valid slide modes are:
+                        <n>: fixed slide value (choose from 0-127)
+                        prs: map to press dimension
+                        rel: emulate relative slide mode
+                        abs: emulate absolute slide mode
+                        bip: (default) emulate bipolar mode
+                    """)
+                    pass
         elif s == 'split':
             select_splits()
         elif s == 'map':

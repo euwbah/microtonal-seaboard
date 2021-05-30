@@ -1,10 +1,12 @@
+import re
+
+import configs
 import convert
-import main
 
 
 class MapParsingError(Exception):
     def __init__(self, msg):
-        super('Error parsing mapping. ' + msg)
+        super().__init__('Error parsing mapping. ' + msg)
 
 class Mapping:
     def __init__(self, sbm_file_path):
@@ -40,11 +42,15 @@ class Mapping:
             linecount = 0
             while line := f.readline():
                 linecount += 1
-                if line.startswith('/'):
-                    print(line[1:])
+
+                if len(line.strip()) == 0 or line.startswith('#'):
+                    # ignore blank lines and comments
+                    continue
+                elif line.startswith('/'):
+                    print(line[1:].rstrip())
                     continue
 
-                notename, *data = line.split(' ')
+                notename, *data = re.split('\\s+', line.strip())
 
                 if len(data) % 3 != 0 or len(data) == 0:
                     raise MapParsingError(f'line {linecount}: incorrect number of arguments')
@@ -113,7 +119,7 @@ class Mapping:
 
         for split_pos, cents, steps in self.__keys[midinote]:
             if cc74 < split_pos:
-                return convert.cents_to_pitchbend(cents, main.CONFIGS.PITCH_BEND_RANGE)
+                return convert.cents_to_pitchbend(cents, configs.CONFIGS.PITCH_BEND_RANGE)
 
         raise RuntimeError(f'Impossible state error: calc_pitchbend could not find split pos'
                            f'of {convert.midinum_to_12edo_name(midinote)}, cc74: {cc74}')

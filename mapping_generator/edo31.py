@@ -90,7 +90,7 @@ def calc_dieses_from_a4(octave, note) -> int:
     return 31 * (octave - 4) + DIESIS_FROM_A[note]
 
 
-with open('../mappings/31 edo.sbmap', mode='w') as f:
+with open('../mappings/default.sbmap', mode='w') as f:
     sys.stdout = f
 
     print('/   ' + __doc__.strip().replace('\n', '\n/   '))
