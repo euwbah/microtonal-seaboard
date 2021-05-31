@@ -43,7 +43,9 @@ class Mapping:
             while line := f.readline():
                 linecount += 1
 
-                if len(line.strip()) == 0 or line.startswith('#'):
+                line = line.strip()
+
+                if len(line) == 0 or line.startswith('#'):
                     # ignore blank lines and comments
                     continue
                 elif line.startswith('/'):
