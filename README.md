@@ -269,7 +269,7 @@ the white key right below where the black keys begin.
 
 ### Huh?
 
-Don't worry if this is all to cryptic. If you want a mapping for your
+Don't worry if this is all too cryptic. If you want a mapping for your
 seaboard, simply [file an issue](https://github.com/euwbah/microtonal-seaboard/issues/new)
 with the "Mapping Request" label, detailing:
 
