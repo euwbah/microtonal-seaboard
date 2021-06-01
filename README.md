@@ -4,8 +4,8 @@
 
 - Splits seaboard keys vertically using the Slide dimension & retunes to any arbitrary tuning system
 - Cross-platform support: Windows, macOS, Linux (run `main.py`)
-- MPE output mode
-- MIDI output mode (useful for Pianoteq/Kontakt/etc) where each 'step'
+- MPE output mode (For Equator/Strobe/Ableton/Bitwig/etc...)
+- MIDI output mode (useful for Pianoteq/Kontakt/ZynAddSubFX/etc) where each 'step'
   corresponds to 1 semitone in the output.
 - Range splits for MIDI output mode.
   - Open multiple instances of a VST and offset them by +/- 2 octaves to
@@ -16,7 +16,7 @@
   - Absolute 
   - Link slide to press (channel pressure)
   - Bipolar
-- Invert sustain pedal (because I couldn't find this feature .in Equator)
+- Invert sustain pedal (because I couldn't find this feature in Equator lmao)
 
 ## Quick Start
 
