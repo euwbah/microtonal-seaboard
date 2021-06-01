@@ -274,8 +274,11 @@ seaboard, simply [file an issue](https://github.com/euwbah/microtonal-seaboard/i
 with the "Mapping Request" label, detailing:
 
 - The tuning system (+ base tuning frequency)
-- The mapping points, e.g.: 
-  _"white key: down = 0-29, natural = 30-55, up = 56-127_
+- The mapping points, e.g.: _"white key: down = 0-29, natural = 30-55, up = 56-127_
+  - To know exactly what Slide values are being sent when you press a key at a certain vertical position, 
+    you can use a [MIDI monitoring tool](https://www.morson.jp/pocketmidi-webpage/)
+    and filter to view only Control Change messages that are CC74.
+  
 - If the tuning system is meant to work with MIDI-only synths
   (e.g. Pianoteq/Kontakt/ZynSubAddFX), which 12 edo note to 
   anchor the tuning system to.
