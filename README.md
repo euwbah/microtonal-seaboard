@@ -4,8 +4,8 @@
 
 - Splits seaboard keys vertically using the Slide dimension & retunes to any arbitrary tuning system
 - Cross-platform support: Windows, macOS, Linux (run `main.py`)
-- MPE output mode
-- MIDI output mode (useful for Pianoteq/Kontakt/etc) where each 'step'
+- MPE output mode (For Equator/Strobe/Ableton/Bitwig/etc...)
+- MIDI output mode (useful for Pianoteq/Kontakt/ZynAddSubFX/etc) where each 'step'
   corresponds to 1 semitone in the output.
 - Range splits for MIDI output mode.
   - Open multiple instances of a VST and offset them by +/- 2 octaves to
@@ -16,7 +16,7 @@
   - Absolute 
   - Link slide to press (channel pressure)
   - Bipolar
-- Invert sustain pedal (because I couldn't find this feature .in Equator)
+- Invert sustain pedal (because I couldn't find this feature in Equator lmao)
 
 ## Quick Start
 
@@ -269,13 +269,16 @@ the white key right below where the black keys begin.
 
 ### Huh?
 
-Don't worry if this is all to cryptic. If you want a mapping for your
+Don't worry if this is all too cryptic. If you want a mapping for your
 seaboard, simply [file an issue](https://github.com/euwbah/microtonal-seaboard/issues/new)
 with the "Mapping Request" label, detailing:
 
 - The tuning system (+ base tuning frequency)
-- The mapping points, e.g.: 
-  _"white key: down = 0-29, natural = 30-55, up = 56-127_
+- The mapping points, e.g.: _"white key: down = 0-29, natural = 30-55, up = 56-127_
+  - To know exactly what Slide values are being sent when you press a key at a certain vertical position, 
+    you can use a [MIDI monitoring tool](https://www.morson.jp/pocketmidi-webpage/)
+    and filter to view only Control Change messages that are CC74.
+  
 - If the tuning system is meant to work with MIDI-only synths
   (e.g. Pianoteq/Kontakt/ZynSubAddFX), which 12 edo note to 
   anchor the tuning system to.
