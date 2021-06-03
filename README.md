@@ -23,8 +23,10 @@
 1. Download the latest relese [here](https://github.com/euwbah/microtonal-seaboard/releases).
    - Make sure it's for the correct operating system.
 2. Connect your Seaboard RISE/Block, turn it on.
-3. Check ROLI Dashboard/Equator/VST for current pitch bend range setting. Take note of this
+3. Check ROLI Dashboard/VST for current pitch bend range setting. Take note of this
    as you'll have to key it in later.
+   (**If you're using Strobe 2, your pitch bend range 
+   must be +/-48 semitones**)
 4. **Make sure you set Slide mode to absolute in the ROLI Dashboard**
    
    ![img.png](imgs/slide-mode.png)
@@ -62,7 +64,7 @@ CC74 (the 'Slide' dimension) to distinguish vertical sections of each
 key. The mapper outputs midi data to a virtual MIDI port that is used
 to control the DAW/VST/Equator/Kontakt.
 
-A mapping file (`.sbmap`) dictates the vertical points of which the
+A mapping file (`.sbmap`) denotes the vertical points where the
 key splits. Each split key is assigned a cent offset value (used for MPE mode),
 and a step number which represents the number of steps from the note
 A4 (used for MIDI mode).
@@ -80,15 +82,20 @@ To make sure this program runs correctly:
 - The pitch bend range specified must be correct as per
   the ROLI Dashboard, and the pitch bend range of the synth
   used must match the specified range.
+  - **Important:** Strobe 2's 5D MPE presets requires a pitch bend range
+    of +/-48 semitones.
 
 ## MPE mode: Equator/Strobe 2/MPE synths/DAWs/etc...
 
 It should work out of the box. Remember to enable only the virtual midi port
 as the controller and disable the seaboard midi device's input.
 
+**If you're using Strobe 2, your pitch bend range setting must be 48
+on both the ROLI Dashboard and on the mapper**.
+
 The output MPE messages are similar to the MPE messages sent by the
-seaboard, with the exception of one extra pitch bend message sent
-1ms after the NOTE ON event is sent.
+seaboard, with the exception of two extra pitch bend messages:
+one before and one after the NOTE ON event is sent.
 
 ## MIDI mode: Keyscape/Pianoteq/Kontakt/Zynaddsubfx/etc
 
@@ -123,7 +130,7 @@ output port.
 For example, let's say we have 2 instances of Pianoteq, one set at
 -1 octaves listening to MIDI channel 1, and the other set at +1 octave
 listening to MIDI channel 2. Then, we can type
-the `split` command into the mapper to choose our splits.
+the `split` command into the mapper to configure our split ranges.
 
 The mapper prompts us with 
 `enter channel split position(s) or leave blank for 1 output channel only: `.
@@ -151,8 +158,7 @@ splits where each hand plays a different patch.
 
 Any MIDI CCs received will be sent to all active channels at once.
 As such, if you're using two instances of Pianoteq, it is crucial
-to turn off the sustain pedal noise on either one of the VSTs
-as there will be double the sustain pedal noise otherwise. Delicious.
+that you turn off the sustain pedal noise on either one of the VSTs.
 
 ## Other Settings
 

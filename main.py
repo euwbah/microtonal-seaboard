@@ -126,7 +126,7 @@ def select_pitch_bend_range():
 
 
 if __name__ == '__main__':
-    print('microtonal seaboard retuner v0.2.1')
+    print('microtonal seaboard retuner v0.2.2')
 
     select_mapping(search_default=True)
 
