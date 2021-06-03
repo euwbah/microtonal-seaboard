@@ -32,16 +32,15 @@ class MidiInputHandler():
                 pitchbend = mapping.calc_pitchbend(note, cc74)
                 self.send_note_on(channel, note, vel)
 
+                if CONFIGS.SLIDE_MODE == SlideMode.FIXED:
+                    self.send_cc(channel, 74, CONFIGS.SLIDE_FIXED_N)
+                tracker.register_on(note, vel, channel, note, channel, pitchbend)
+
                 # For some reason, equator doesn't register any pitch bend messages
                 # until a note on event on that channel has been received.
-                def do_later():
-                    time.sleep(0.001)
-                    self.send_pitch_bend(channel, pitchbend)
-                    if CONFIGS.SLIDE_MODE == SlideMode.FIXED:
-                        self.send_cc(channel, 74, CONFIGS.SLIDE_FIXED_N)
-
-                threading.Thread(target=do_later).start()
-                tracker.register_on(note, vel, channel, note, channel, pitchbend)
+                # Pitch bend has to come in later. This is quite hacky.
+                time.sleep(0.001)
+                self.send_pitch_bend(channel, pitchbend)
             else:
                 send_ch, send_note_offset = CONFIGS.SPLITS.get_split_range(note)
                 send_note = mapping.calc_notes_from_a4(note, cc74) + MIDI_NOTE_A4 + send_note_offset
