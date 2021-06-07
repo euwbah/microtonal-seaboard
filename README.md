@@ -3,7 +3,10 @@
 ## Features
 
 - Splits seaboard keys vertically using the Slide dimension & retunes to any arbitrary tuning system
-- Cross-platform support: Windows, macOS, Linux (run `main.py`)
+- Cross-platform support
+  - Pre-built executables for Windows and macOS (Catalina 10.15 or newer).
+  - See [build instructions](#build-instructions) to build the program
+    yourself if you're using an older/different OS.
 - MPE output mode (For Equator/Strobe/Ableton/Bitwig/etc...)
 - MIDI output mode (useful for Pianoteq/Kontakt/ZynAddSubFX/etc) where each 'step'
   corresponds to 1 semitone in the output.
@@ -20,8 +23,12 @@
 
 ## Quick Start
 
-1. Download the latest relese [here](https://github.com/euwbah/microtonal-seaboard/releases).
-   - Make sure it's for the correct operating system.
+1. Download the latest release [here](https://github.com/euwbah/microtonal-seaboard/releases).
+   - If you are on macOS, the pre-built application only works on Catalina (10.15) or
+     newer versions.
+   - If you're using an older version or a *nix OS, read the 
+     [build instructions](#build-instructions) to build your own application
+     from the source code.
 2. Connect your Seaboard RISE/Block, turn it on.
 3. Check ROLI Dashboard/VST for current pitch bend range setting. Take note of this
    as you'll have to key it in later.
@@ -69,10 +76,11 @@ key splits. Each split key is assigned a cent offset value (used for MPE mode),
 and a step number which represents the number of steps from the note
 A4 (used for MIDI mode).
 
-## Checklist:
+## Checklist / Troubleshooting
 
 To make sure this program runs correctly:
 
+- You can't be using a Seaboard GRAND (it doesn't have the slide dimension)
 - Turn on & connect seaboard before running the mapper.
 - Slide sensitivity must be maximum
 - Slide mode must be absolute on the ROLI Dashboard
@@ -84,6 +92,17 @@ To make sure this program runs correctly:
   used must match the specified range.
   - **Important:** Strobe 2's 5D MPE presets requires a pitch bend range
     of +/-48 semitones.
+- The mappings/ folder must be in the same location as the 
+  .exe/.app/executable otherwise the default mapping will not load by
+  default.
+    
+**IMPORTANT for macOS users**: If you're using the pre-built
+application, and you get this error:
+
+![img.png](imgs/macOS-error.png)
+
+That means that your OS version is too old. You have to
+[build the app from source](#build-instructions)
 
 ## MPE mode: Equator/Strobe 2/MPE synths/DAWs/etc...
 
@@ -238,10 +257,14 @@ Take note of the following constraints:
 3. The final split point must always be 128 representing the
    maxima of the cc74 value range.
 4. You can leave out notes in the mapping file. Not all 
-   of them have to be mapped. If a note is left out, it
-   will take on default behaviour.
+   of them have to be mapped in order for the program to work.
+   The left-out notes will default to the standard behavior
+   and tuning.
+   
+#### Key split data example
 
-For example, this is line 92 of the default 31 edo mapping:
+For example, this is 
+[line 92 of the default 31 edo mapping](https://github.com/euwbah/microtonal-seaboard/blob/master/mappings/default.sbmap#L92):
 
 `A4    30 -38.7097   -1  50   0.0000    0  73  38.7097    1  98   0.0000    0 128  38.7097    1`
 
@@ -290,3 +313,88 @@ with the "Mapping Request" label, detailing:
   anchor the tuning system to.
 
 I will try my best to get it done :)
+
+## Build Instructions
+
+If the [pre-built releases](https://github.com/euwbah/microtonal-seaboard/releases)
+don't support your OS, or if you want to contribute/play around, you can follow
+the following steps to build the program yourself. Don't worry it's
+not hard!
+
+If you have any issues with building, do [file an issue](https://github.com/euwbah/microtonal-seaboard/issues/new)
+and paste the entire contents of your terminal.
+
+### Build for macOS
+
+1. You have to be on a mac _(Pyinstaller doesn't support cross-compile)_
+2. [Install the latest version of Python](https://www.python.org/downloads/)
+   - Double check that you are using the right version of python by
+     opening the terminal/powershell, then enter `python3 --version`
+3. Download the [latest source code](#https://github.com/euwbah/microtonal-seaboard/archive/refs/heads/master.zip)
+4. Extract the .zip source code anywhere.
+5. You need to check that you have these:
+    1. Check that you have `g++` by opening your terminal and entering
+       `g++`. If it says `note: no developer tools were found...`, and a
+       prompt pops up with an install button, click it.
+       ![img.png](imgs/macOS-gcc.png)
+    2. If you already installed VSTs and DAWs, and have successfully
+       used your Seaboard with the Mac, you most probably already
+       have CoreMIDI and/or JACK. If not you should
+       [check that your CoreMIDI is working](https://www.jnote.com/how-to-fix-core-midi-problems-with-osx-after-using-migration-assistant-or-upgrading-system/)
+6. Open the terminal within the directory of the extracted source code.
+    1. If you're unfamilliar with `cd`, go to **System Preferences > Keyboard > Shortcuts >
+       services** and enable **New Terminal at Folder**
+    2. Open Finder and right-click on the extracted folder containing
+       the source code.
+    3. Click the option **New Terminal at Folder**.
+7. Inside the terminal, enter `./build.sh`
+    1. If it doesn't work the first time, enter `chmod +x build.sh` then
+       try again.
+
+When that is finished, you should see a new file:
+`microtonal-seaboard.zip` inside the folder. 
+The app is contained within. Congrats!
+
+
+### Build for Windows (you have to be on Windows 10)
+
+1. You have to be on Windows 10 _(Pyinstaller doesn't support cross-compile)_
+2. [Install the latest version of Python](https://www.python.org/downloads/)
+   - Double check that you are using the right version of python by
+     opening the terminal/powershell, then enter `py --version`
+3. Download the [latest source code](#https://github.com/euwbah/microtonal-seaboard/archive/refs/heads/master.zip)
+4. Extract the .zip source code anywhere.
+5. You need to check that you have a C++ compiler installed:
+    1. If you are uncertain what that is, just download and install this:
+    https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2019
+6. Open cmd/powershell in the directory of the extracted folder.
+    1. If you're unfamilliar with `cd`, open the folder containing
+       the extracted source code inside the File Explorer, then
+       right click any blank empty space, and select the option
+       "Open PowerShell window here"
+7. Inside the cmd/powershell, run `.\build.bat`
+
+When that is finished, you should see a new file:
+`microtonal-seaboard-windows.zip` inside the folder. 
+The app is contained within. Congrats!
+
+### Build for Linux
+
+1. You have to be on Linux/WSL _(Pyinstaller doesn't support cross-compile)_
+2. [Install the latest version of Python](https://www.python.org/downloads/)
+   - Double check that you are using the right version of python by
+     opening the terminal/powershell, then enter `python3 --version`
+3. Download the [latest source code](#https://github.com/euwbah/microtonal-seaboard/archive/refs/heads/master.zip)
+4. Extract the .zip source code anywhere.
+5. You need to check that you have these:
+    1. If you are on Debian (Ubuntu/Mint/etc)
+        1. `sudo apt-get update`
+        2. `sudo apt-get build-essential python-dev libasound2-dev`
+    2. If you are on Arch/Manjaro
+        1. `sudo pacman -Syu`
+        2. `sudo pacman -S base-devel alsa-lib`
+6. Execute `./build.sh`
+
+When that is finished, you should see a new file:
+`microtonal-seaboard.zip` inside the folder. 
+The app is contained within. Congrats!
