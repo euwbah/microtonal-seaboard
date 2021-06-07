@@ -330,7 +330,7 @@ and paste the entire contents of your terminal.
 2. [Install the latest version of Python](https://www.python.org/downloads/)
    - Double check that you are using the right version of python by
      opening the terminal/powershell, then enter `python3 --version`
-3. Download the [latest source code](#https://github.com/euwbah/microtonal-seaboard/archive/refs/heads/master.zip)
+3. Download the [latest source code](https://github.com/euwbah/microtonal-seaboard/archive/refs/heads/master.zip)
 4. Extract the .zip source code anywhere.
 5. You need to check that you have these:
     1. Check that you have `g++` by opening your terminal and entering
@@ -362,7 +362,7 @@ The app is contained within. Congrats!
 2. [Install the latest version of Python](https://www.python.org/downloads/)
    - Double check that you are using the right version of python by
      opening the terminal/powershell, then enter `py --version`
-3. Download the [latest source code](#https://github.com/euwbah/microtonal-seaboard/archive/refs/heads/master.zip)
+3. Download the [latest source code](https://github.com/euwbah/microtonal-seaboard/archive/refs/heads/master.zip)
 4. Extract the .zip source code anywhere.
 5. You need to check that you have a C++ compiler installed:
     1. If you are uncertain what that is, just download and install this:
@@ -384,7 +384,7 @@ The app is contained within. Congrats!
 2. [Install the latest version of Python](https://www.python.org/downloads/)
    - Double check that you are using the right version of python by
      opening the terminal/powershell, then enter `python3 --version`
-3. Download the [latest source code](#https://github.com/euwbah/microtonal-seaboard/archive/refs/heads/master.zip)
+3. Download the [latest source code](https://github.com/euwbah/microtonal-seaboard/archive/refs/heads/master.zip)
 4. Extract the .zip source code anywhere.
 5. You need to check that you have these:
     1. If you are on Debian (Ubuntu/Mint/etc)
