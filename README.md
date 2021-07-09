@@ -135,11 +135,13 @@ all active output channels simultaneously.
 
 ### Range splits: Get more range/keyboard splits in MIDI mode
 
-MIDI only has 127 notes available, that's just 4 octaves of 31 edo
-and a bit more.
+MIDI only has 127 notes available - when using large EDOs, the effective
+range of the VST quickly becomes very limited.
 
 However, with this mapper, the seaboard is now able to output MIDI
-notes spanning a much greater range.
+notes across different MIDI channels to achieve a larger range using
+multiple VST instances or using a VST's internal multi-channel mapping
+ability.
 
 To get more range out of Pianoteq/Kontakt/microtuning synths,
 you can open multiple instances of them and set them at different

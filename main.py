@@ -4,6 +4,7 @@ import traceback
 from rtmidi import MidiIn, MidiOut
 from rtmidi.midiutil import open_midiinput, open_midioutput
 
+import configs
 import convert
 from configs import SlideMode, CONFIGS
 from handler import MidiInputHandler
@@ -54,7 +55,7 @@ def select_splits():
         while True:
             i = input(f'enter midi output offset for split range channel {ch + 1} '
                   f'(range {convert.midinum_to_12edo_name(prev_split_pos)} - '
-                  f'{convert.midinum_to_12edo_name(s - 1)})')
+                  f'{convert.midinum_to_12edo_name(s - 1)}): ')
 
             try:
                 offset = int(i)
@@ -108,6 +109,7 @@ def select_mapping(search_default=False):
 
     root.withdraw()
 
+
 def select_pitch_bend_range():
     while True:
         try:
@@ -125,10 +127,22 @@ def select_pitch_bend_range():
             pass
 
 
-if __name__ == '__main__':
-    print('microtonal seaboard retuner v0.2.2')
+def intable(s):
+    """Check if a string can be converted to an int"""
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False
 
-    select_mapping(search_default=True)
+
+if __name__ == '__main__':
+    print('microtonal seaboard retuner v0.3.0')
+
+    has_read_configs = configs.read_configs()
+
+    if not has_read_configs:
+        select_mapping(search_default=True)
 
     print('')
     print('MIDI IN/OUT DEVICE SELECTION')
@@ -140,11 +154,14 @@ if __name__ == '__main__':
     print('Select the virtual MIDI output port that gets sent to the DAW/VST/Program:')
     virtual_port: MidiOut = open_midioutput()[0]
 
-    print('')
-    select_pitch_bend_range()
+    if not has_read_configs:
+        print('')
+        select_pitch_bend_range()
 
     print('')
-    print('Starting microtonal message forwarding in MPE mode...')
+
+    print(f'Starting microtonal message forwarding in '
+          f'{"MPE" if CONFIGS.MPE_MODE else "MIDI"} mode...')
 
     seaboard.set_callback(MidiInputHandler(virtual_port))
 
@@ -162,6 +179,7 @@ if __name__ == '__main__':
     map                         select new .sbmap file
     pb                          change pitch bend amount
     sus                         toggles sustain pedal polarity
+    save                        saves all current settings
     exit                        exit the program""")
 
     while True:
@@ -172,6 +190,8 @@ if __name__ == '__main__':
             del virtual_port
             del seaboard
             exit(0)
+        if s == 'save':
+            configs.save_configs()
         elif s == 'mpe':
             print('MPE mode active')
             CONFIGS.MPE_MODE = True
