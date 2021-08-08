@@ -3,7 +3,7 @@ python3 -m pip install --user virtualenv
 python3 -m venv venv
 source venv/bin/activate
 python3 -m pip install -r requirements.txt
-pyinstaller -F --hidden-import=websockets.legacy -n microtonal-seaboard main.py &&\
+pyinstaller -F ./microtonal-seaboard.spec &&\
     cd dist/ &&\
     zip -r9 microtonal-seaboard.zip ../mappings microtonal-seaboard
 deactivate
