@@ -4,6 +4,7 @@ import rtmidi.midiconstants as midi
 from rtmidi import MidiIn, MidiOut
 
 import convert
+import ws_server
 from keytracker import KeyTracker, ChannelWrapper
 from configs import SlideMode, CONFIGS
 
@@ -28,6 +29,9 @@ class MidiInputHandler():
         msg_type, channel = EVENT_MASK & message[0], CHANNEL_MASK & message[0]
 
         def tune_and_send_note(note, vel, cc74):
+
+            edosteps_from_a4 = mapping.calc_notes_from_a4(note, cc74)
+
             if CONFIGS.MPE_MODE:
                 pitchbend = mapping.calc_pitchbend(note, cc74)
                 # pitch bend has to go before the note on event
@@ -37,14 +41,14 @@ class MidiInputHandler():
 
                 if CONFIGS.SLIDE_MODE == SlideMode.FIXED:
                     self.send_cc(channel, 74, CONFIGS.SLIDE_FIXED_N)
-                tracker.register_on(note, vel, channel, note, channel, pitchbend)
+                tracker.register_on(note, vel, channel, note, channel, edosteps_from_a4, pitchbend)
 
                 # pitch bend has to go after note on event
                 # otherwise strobe 2 complete disregards it
                 self.send_pitch_bend(channel, pitchbend)
             else:
                 send_ch, send_note_offset = CONFIGS.SPLITS.get_split_range(note)
-                send_note = mapping.calc_notes_from_a4(note, cc74) + MIDI_NOTE_A4 + send_note_offset
+                send_note = edosteps_from_a4 + MIDI_NOTE_A4 + send_note_offset
 
                 if 0 > send_note > 127:
                     send_note = max(0, min(127, send_note))
@@ -56,6 +60,7 @@ class MidiInputHandler():
                 # stop that note. Prevents ghosts that hang around.
                 if existing := tracker.check_existing(channel):
                     self.send_note_off(existing.channel_sent, existing.midi_note_sent, 0)
+                    ws_server.send_note_off(existing.edosteps_from_a4, 0)
 
                 def do_later():
                     time.sleep(0.001)
@@ -63,7 +68,9 @@ class MidiInputHandler():
                         self.send_cc(channel, 74, CONFIGS.SLIDE_FIXED_N)
 
                 threading.Thread(target=do_later).start()
-                tracker.register_on(note, vel, channel, send_note, send_ch)
+                tracker.register_on(note, vel, channel, send_note, send_ch, edosteps_from_a4)
+
+            ws_server.send_note_on(edosteps_from_a4, vel)
 
         if msg_type == midi.NOTE_ON:
             note, vel = message[1:3]
@@ -130,7 +137,9 @@ class MidiInputHandler():
                     send_preempt_defaults()
 
             elif cc == midi.SUSTAIN:  # CC 64
-                self.send_cc(c, cc, value if not CONFIGS.TOGGLE_SUSTAIN else 127 - value)
+                sustain_value = value if not CONFIGS.TOGGLE_SUSTAIN else 127 - value
+                self.send_cc(c, cc, sustain_value)
+                ws_server.send_cc(cc, sustain_value)
             else:
                 self.send_cc(c, cc, value)
 

@@ -74,6 +74,11 @@ class ChannelWrapper:
         updated after note on event.
         """
 
+        self.edosteps_from_a4 = 0
+        """
+        Raw number of edosteps from a4 that was sent to the websocket server
+        """
+
 
 class KeyTracker:
     """
@@ -84,7 +89,7 @@ class KeyTracker:
         for ch in range(0, 16):
             self.__notes[ch] = ChannelWrapper()
 
-    def register_on(self, midi_received, vel, in_channel, midi_sent, send_channel, pitch_offset=8192):
+    def register_on(self, midi_received, vel, in_channel, midi_sent, send_channel, edosteps_from_a4, pitch_offset=8192):
         """
         Called only after a NOTE ON event has been forwarded.
         If note on received, but still awaiting cc74 message, use
@@ -104,6 +109,7 @@ class KeyTracker:
         n._note_on = True
         n.base_pitch = pitch_offset
         n.channel_sent = send_channel
+        n.edosteps_from_a4 = edosteps_from_a4
 
     def register_received(self, midi_received, vel, in_channel):
         """

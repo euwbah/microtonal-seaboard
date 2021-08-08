@@ -6,6 +6,7 @@ from rtmidi.midiutil import open_midiinput, open_midioutput
 
 import configs
 import convert
+import ws_server
 from configs import SlideMode, CONFIGS
 from handler import MidiInputHandler
 from mapping import Mapping, MapParsingError
@@ -162,6 +163,8 @@ if __name__ == '__main__':
 
     print(f'Starting microtonal message forwarding in '
           f'{"MPE" if CONFIGS.MPE_MODE else "MIDI"} mode...')
+
+    ws_server.start_ws_server()
 
     seaboard.set_callback(MidiInputHandler(virtual_port))
 
