@@ -88,12 +88,15 @@ class MidiInputHandler():
 
             if CONFIGS.MPE_MODE:
                 self.send_note_off(channel, note, vel)
-            else:
-                if existing := tracker.check_existing(channel):
+
+            if existing := tracker.check_existing(channel):
+                if not CONFIGS.MPE_MODE:
                     self.send_note_off(existing.channel_sent, existing.midi_note_sent, vel)
-                else:
-                    print('warning: unable to find existing note to turn off in MIDI mode. '
-                          'There may be a stuck note present.')
+
+                ws_server.send_note_off(existing.edosteps_from_a4, vel)
+            else:
+                print('warning: unable to find existing note to turn off in websocket/MIDI mode. '
+                      'There may be a stuck note present.')
 
             tracker.register_off(channel)
 
@@ -187,6 +190,8 @@ class MidiInputHandler():
                 self.out_port.send_message([midi.CONTROL_CHANGE + c, cc, val])
         else:
             self.out_port.send_message([midi.CONTROL_CHANGE + channel, cc, val])
+
+        ws_server.send_cc(cc, val);
 
     def send_pitch_bend(self, channel, pitchbend):
         lsb, msb = convert.pitch_bend_to_raw_pitch_msg(pitchbend)
