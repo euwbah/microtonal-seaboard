@@ -59,15 +59,17 @@ class MidiInputHandler():
                 # if a note overrides another active note in the same input channel,
                 # stop that note. Prevents ghosts that hang around.
                 if existing := tracker.check_existing(channel):
+                    print(f'max channel used: sent {existing.edosteps_from_a4} off')
                     self.send_note_off(existing.channel_sent, existing.midi_note_sent, 0)
                     ws_server.send_note_off(existing.edosteps_from_a4, 0)
 
                 def do_later():
                     time.sleep(0.001)
-                    if CONFIGS.SLIDE_MODE == SlideMode.FIXED:
-                        self.send_cc(channel, 74, CONFIGS.SLIDE_FIXED_N)
+                    self.send_cc(channel, 74, CONFIGS.SLIDE_FIXED_N)
 
-                threading.Thread(target=do_later).start()
+                if CONFIGS.SLIDE_MODE == SlideMode.FIXED:
+                    threading.Thread(target=do_later).start()
+
                 tracker.register_on(note, vel, channel, send_note, send_ch, edosteps_from_a4)
 
             ws_server.send_note_on(edosteps_from_a4, vel)

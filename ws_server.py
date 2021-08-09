@@ -24,7 +24,6 @@ async def handler(websocket, path):
 
     while True:
         message = await message_queue['async'].get()
-        print(f'queue got {message}')
         await websocket.send(message)
 
 
