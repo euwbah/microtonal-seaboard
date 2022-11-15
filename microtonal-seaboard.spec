@@ -54,7 +54,8 @@ a = Analysis(['main.py'],
                 "Origin.typing",
                 "ExtensionHeader.typing",
                 "ExtensionParameter.typing",
-                "Subprotocol.typing"
+                "Subprotocol.typing",
+                "dill"
              ],
              hookspath=[],
              runtime_hooks=[],

@@ -34,6 +34,14 @@ class Mapping:
         """
 
         self.load_mapping(sbm_file_path)
+        
+        
+        # Add heuristic for how many edosteps per octave (assumes octaves are mapped all the same on the seaboard)
+        # Calculate step offset difference between lowest split of C4 to C5 to get EDO
+        self.edo = self.__keys[convert.notename_to_midinum('c5')][0][2] - self.__keys[convert.notename_to_midinum('c4')][0][2]
+        '''
+        A heuristic guess on how many steps correspond to an octave. Used for auto splitting in MIDI mode.
+        '''
 
     def load_mapping(self, sbm_file_path):
         self.__keys = {}
@@ -70,7 +78,7 @@ class Mapping:
 
                 previous_cc74 = 0
 
-                split_points = []
+                vert_split_points = []
                 last_split_point = 0
                 for cc74, cents, steps in segments:
                     try:
@@ -96,13 +104,13 @@ class Mapping:
                     except Exception:
                         raise MapParsingError(f'line {linecount}: invalid steps value: {steps}')
 
-                    split_points.append((cc74, cents, steps))
+                    vert_split_points.append((cc74, cents, steps))
                     last_split_point = cc74
 
                 if last_split_point != 128:
                     raise MapParsingError(f'line {linecount}: last cc74 split point of a key must be 128')
 
-                self.__keys[midinote] = split_points
+                self.__keys[midinote] = vert_split_points
 
         print('Mapping loaded!')
 

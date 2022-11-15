@@ -138,7 +138,7 @@ def intable(s):
 
 
 if __name__ == '__main__':
-    print('microtonal seaboard retuner v0.4.5d')
+    print('microtonal seaboard retuner v0.5')
 
     has_read_configs = configs.read_configs()
 
@@ -179,10 +179,11 @@ if __name__ == '__main__':
                                     abs: emulate absolute slide mode
                                     bip: (default) emulate bipolar mode
     split                       set split points (for midi mode)
+    autosplit                   toggle auto-split for Pianoteq (for midi mode)
     map                         select new .sbmap file
     pb                          change pitch bend amount
     sus                         toggles sustain pedal polarity
-    save                        saves all current settings
+    save                        saves all current settings (not automatic)
     exit                        exit the program""")
 
     while True:
@@ -239,6 +240,12 @@ if __name__ == '__main__':
                     pass
         elif s == 'split':
             select_splits()
+        elif s == 'autosplit':
+            if CONFIGS.AUTO_SPLIT is not None:
+                CONFIGS.AUTO_SPLIT = None
+            else:
+                CONFIGS.AUTO_SPLIT = SplitData(CONFIGS.MAPPING)
+            print(f'Auto Split: {"on" if CONFIGS.AUTO_SPLIT is not None else "off"}')
         elif s == 'map':
             select_mapping()
         elif s == 'pb':

@@ -39,7 +39,7 @@ jobs:
           - os: macos-latest
             TARGET: macos
             CMD_BUILD: >
-              pyinstaller -F microtonal-seaboard.spec &&
+              pyinstaller microtonal-seaboard.spec &&
               cd dist/ &&
               zip -r9 microtonal-seaboard-macos.zip ../mappings microtonal-seaboard
             OUT_FILE_NAME: microtonal-seaboard-macos.zip
@@ -47,7 +47,7 @@ jobs:
           - os: windows-latest
             TARGET: windows
             CMD_BUILD: >
-              pyinstaller -F microtonal-seaboard.spec &&
+              pyinstaller microtonal-seaboard.spec &&
               cd dist/ &&
               tar -a -c -f microtonal-seaboard-windows.zip ../mappings microtonal-seaboard.exe
             OUT_FILE_NAME: microtonal-seaboard-windows.zip

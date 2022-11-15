@@ -147,8 +147,8 @@ notes across different MIDI channels to achieve a larger range using
 multiple VST instances or using a VST's internal multi-channel mapping
 ability.
 
-Pianoteq 6+ natively supports multi-channel midi inputs to obtain a larger range.
-[Follow these steps instead for Pianoteq](#microtuning-on-pianoteq).
+Pianoteq 6+ natively supports multi-channel midi inputs to obtain a larger range for big EDOs.
+[**Follow these simpler instructions instead for pianoteq.**](#microtuning-on-pianoteq).
 
 Otherwise, to get more range out of microtunable synths,
 you can open multiple instances of them and set them at different
@@ -194,47 +194,24 @@ Pianoteq offers [multi-channel keyboard mappings](https://forum.modartt.com/view
 which bypasses the need for opening multiple instances of pianoteq in order to get the
 full range.
 
-There is little official documentation on this feature, so here's how it works:
-- Under Pianoteq's microtuning screen, there's a button on the top right
-  to change the keyboard mapping. Click on it and you will see an option
-  titled 'Extended layout for up to 16*128 notes'
+To make use of this in the seaboard mapper:
+
+1. enter `autosplit` in the console to turn auto split mode on
+
+2. Under Pianoteq's microtuning screen, there's a button on the top right
+  to change the **keyboard mapping**. Click on it and you will see an option
+  titled '**Extended layout for up to 16*128 notes**'. Open the drop down and select **MIDI channel 5**
   
 ![img.png](imgs/extended-layout-pianoteq.png)
 
-- If you toggle the 'Multi-channel MIDI layout' option and activate it,
-  it will cause the notes received on each subsequent MIDI channel 
+- This will cause the notes received on each subsequent MIDI channel 
   to sound one octave higher than the previous MIDI channel.
-- The Main MIDI Channel setting determines the MIDI channel that will not
-  be transposed at all.
-- E.g. if MIDI channel 4 is selected as the main channel,
-  channel 3 will be transposed one octave below, channel 5 will be transposed
-  an octave up, etc...
-- Note that if the scala tuning file imported denotes a non-octave tuning
+- The checked midi channel (5) denotes the MIDI channel that will not have any octave/equave transposition at all.
+- E.g. if MIDI channel 5 is selected as the main channel,
+  Notes played on channel 4 will sound one octave below what's played, notes played on channel 6 will sound one octave up, etc...
+- Note that if the scala tuning file imported on Pianoteq denotes a non-octave tuning
   (e.g. Bohlen-pierce/Wendy Carlos's alpha/beta), then Pianoteq will
   transpose according to the tuning system's [period](https://en.xen.wiki/w/Periods_and_generators).
-
-
-Here's how to obtain the full 8 octave range on the piano in
-the default 31 edo mapping using Pianoteq and the seaboard mapper:
-
-1. Turn on Multi=channel MIDI layout mode 
-   (Microtuning > Keyboard Mapping > Extended layout for up to... >
-   Multi-channel MIDI layout)
-2. Set Main MIDI channel to channel 4. This opens up 3 more octaves below.
-3. Enter the `split` command in the seaboard mapping program
-4. Input the following (see above section for
-   explanation):
-    1. `C2 C3 C4 C5 C6 C7`
-    2. `93`
-    3. `62`
-    4. `31`
-    5. `0`
-    6. `-31`
-    7. `-62`
-    8. `-93`
-5. Enter the [`save` command](#save) so you don't have to do this every time.
-
-Now you can play all the way down to A0 and up to C8 and beyond!
 
 ## Other Settings/Commands
 

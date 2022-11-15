@@ -27,6 +27,8 @@ Note: in MIDI mode, a +1 octave shift on the VST has to be accounted
 import sys
 import convert
 
+EDO = 31
+
 ISWHITEKEY_MAP = {
     0: True,
     1: False,
@@ -78,7 +80,7 @@ MIDI_NOTE_A4 = convert.notename_to_midinum('a4')
 
 
 def calc_cent_offset(dieses_from_a4: int, semitones_from_a4: int) -> float:
-    return 1200 * (dieses_from_a4 / 31 - semitones_from_a4 / 12)
+    return 1200 * (dieses_from_a4 / EDO - semitones_from_a4 / 12)
 
 
 def calc_semitones_from_a4(midinote) -> int:
@@ -86,10 +88,10 @@ def calc_semitones_from_a4(midinote) -> int:
 
 
 def calc_dieses_from_a4(octave, note) -> int:
-    return 31 * (octave - 4) + DIESIS_FROM_A[note]
+    return EDO * (octave - 4) + DIESIS_FROM_A[note]
 
 
-with open('../mappings/default.sbmap', mode='w') as f:
+with open('./mappings/default.sbmap', mode='w') as f:
     sys.stdout = f
 
     print('/   ' + __doc__.strip().replace('\n', '\n/   '))

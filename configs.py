@@ -1,5 +1,6 @@
 import os
 from enum import Enum
+from typing import Optional
 
 import dill
 
@@ -16,10 +17,20 @@ class SlideMode(Enum):
 
 
 class CONFIGS:
+    '''
+    Static Singleton class for storing global configuration data.
+    '''
     MPE_MODE = True
     SLIDE_MODE = SlideMode.RELATIVE
     SLIDE_FIXED_N = 64
     SPLITS = SplitData()
+    AUTO_SPLIT: Optional[SplitData] = None
+    '''
+    If true, MIDI mode will output each octave in its own channel, and SPLITS will be ignored.
+    The interval between C4 and C5 in the mapping will be used to determine octave offset in edosteps.
+    This is useful for Pianoteq which allows multi-channel mode where channel N+1 is pitched
+    one octave higher than channel N. (useful for very large edos)
+    '''
     PITCH_BEND_RANGE = 24
     MAPPING: Mapping = None
     TOGGLE_SUSTAIN = False
@@ -42,6 +53,7 @@ def read_configs() -> bool:
             CONFIGS.SLIDE_MODE = c['SLIDE_MODE']
             CONFIGS.SLIDE_FIXED_N = c['SLIDE_FIXED_N']
             CONFIGS.SPLITS = c['SPLITS']
+            CONFIGS.AUTO_SPLIT = c['AUTO_SPLIT']
             CONFIGS.PITCH_BEND_RANGE = c['PITCH_BEND_RANGE']
             CONFIGS.MAPPING = c['MAPPING']
             CONFIGS.TOGGLE_SUSTAIN = c['TOGGLE_SUSTAIN']
@@ -62,6 +74,7 @@ def save_configs():
             'SLIDE_MODE': CONFIGS.SLIDE_MODE,
             'SLIDE_FIXED_N': CONFIGS.SLIDE_FIXED_N,
             'SPLITS': CONFIGS.SPLITS,
+            'AUTO_SPLIT': CONFIGS.AUTO_SPLIT,
             'PITCH_BEND_RANGE': CONFIGS.PITCH_BEND_RANGE,
             'MAPPING': CONFIGS.MAPPING,
             'TOGGLE_SUSTAIN': CONFIGS.TOGGLE_SUSTAIN
