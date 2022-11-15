@@ -138,7 +138,7 @@ def intable(s):
 
 
 if __name__ == '__main__':
-    print('microtonal seaboard retuner v0.5')
+    print('microtonal seaboard retuner v0.5.0')
 
     has_read_configs = configs.read_configs()
 
