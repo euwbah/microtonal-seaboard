@@ -101,6 +101,8 @@ def select_mapping(search_default=False):
 
         try:
             CONFIGS.MAPPING = Mapping(path)
+            if CONFIGS.AUTO_SPLIT is not None:
+                CONFIGS.AUTO_SPLIT = SplitData(CONFIGS.MAPPING) # Update autosplit to new mapping
             break
         except MapParsingError as e:
             print(e)
@@ -138,7 +140,7 @@ def intable(s):
 
 
 if __name__ == '__main__':
-    print('microtonal seaboard retuner v0.5.0')
+    print('microtonal seaboard retuner v0.5.1')
 
     has_read_configs = configs.read_configs()
 
