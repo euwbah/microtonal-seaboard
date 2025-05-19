@@ -1,7 +1,7 @@
 import threading
 import time
 import rtmidi.midiconstants as midi
-from rtmidi import MidiIn, MidiOut
+from rtmidi import MidiIn, MidiOut # type: ignore
 
 import convert
 import ws_server
@@ -51,7 +51,7 @@ class MidiInputHandler():
                     send_ch, send_note_offset = CONFIGS.AUTO_SPLIT.get_split_range(note)
                 else:
                     send_ch, send_note_offset = CONFIGS.SPLITS.get_split_range(note)
-                
+
                 send_note = edosteps_from_a4 + MIDI_NOTE_A4 + send_note_offset
 
                 if 0 > send_note > 127:

@@ -20,20 +20,20 @@ class CONFIGS:
     '''
     Static Singleton class for storing global configuration data.
     '''
-    MPE_MODE = True
-    SLIDE_MODE = SlideMode.RELATIVE
-    SLIDE_FIXED_N = 64
-    SPLITS = SplitData()
+    MPE_MODE: bool = True
+    SLIDE_MODE: SlideMode = SlideMode.RELATIVE
+    SLIDE_FIXED_N: int = 64
+    SPLITS: SplitData = SplitData()
     AUTO_SPLIT: Optional[SplitData] = None
     '''
-    If true, MIDI mode will output each octave in its own channel, and SPLITS will be ignored.
+    If not None, the SplitData will configure MIDI mode to output each octave in its own channel, and SPLITS will be ignored.
     The interval between C4 and C5 in the mapping will be used to determine octave offset in edosteps.
     This is useful for Pianoteq which allows multi-channel mode where channel N+1 is pitched
     one octave higher than channel N. (useful for very large edos)
     '''
-    PITCH_BEND_RANGE = 24
-    MAPPING: Mapping = None
-    TOGGLE_SUSTAIN = False
+    PITCH_BEND_RANGE: int = 24
+    MAPPING: Mapping
+    TOGGLE_SUSTAIN: bool = False
 
 
 def read_configs() -> bool:

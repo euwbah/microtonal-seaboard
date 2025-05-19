@@ -87,14 +87,18 @@ def calc_semitones_from_a4(midinote) -> int:
     return midinote - MIDI_NOTE_A4
 
 
-def calc_dieses_from_a4(octave, note) -> int:
+def calc_edosteps_from_a4(octave, note) -> int:
+    """
+    Calculate the standard edosteps from A4 for the 12edo midi note.
+    """
     return EDO * (octave - 4) + DIESIS_FROM_A[note]
 
 
 with open('./mappings/default.sbmap', mode='w') as f:
     sys.stdout = f
 
-    print('/   ' + __doc__.strip().replace('\n', '\n/   '))
+    docstr = __doc__ if __doc__ else ''
+    print('/   ' + docstr.strip().replace('\n', '\n/   '))
 
     for midinote in range(0, 128):
         notename = convert.midinum_to_12edo_name(midinote)
@@ -102,26 +106,26 @@ with open('./mappings/default.sbmap', mode='w') as f:
         note = midinote % 12
         semitones_from_a4 = calc_semitones_from_a4(midinote)
         # diesis offset from a4 for the natural or sharp note (if black key)
-        nat_diesis = calc_dieses_from_a4(octave, note)
+        nat_edosteps = calc_edosteps_from_a4(octave, note)
 
         if ISWHITEKEY_MAP[note]:
-            centsdown = calc_cent_offset(nat_diesis - 1, semitones_from_a4)
-            centsnat = calc_cent_offset(nat_diesis, semitones_from_a4)
-            centsup = calc_cent_offset(nat_diesis + 1, semitones_from_a4)
+            centsdown = calc_cent_offset(nat_edosteps - 1, semitones_from_a4)
+            centsnat = calc_cent_offset(nat_edosteps, semitones_from_a4)
+            centsup = calc_cent_offset(nat_edosteps + 1, semitones_from_a4)
 
             # keymap strictly has to be in increasing order
-            keymap = [(WHITE_DOWN, centsdown, nat_diesis - 1),
-                      (WHITE_NAT, centsnat, nat_diesis),
-                      (WHITE_UP, centsup, nat_diesis + 1),
-                      (WHITE_NAT_ABOVE, centsnat, nat_diesis),
-                      (WHITE_UP_ABOVE, centsup, nat_diesis + 1)]
+            keymap = [(WHITE_DOWN, centsdown, nat_edosteps - 1),
+                      (WHITE_NAT, centsnat, nat_edosteps),
+                      (WHITE_UP, centsup, nat_edosteps + 1),
+                      (WHITE_NAT_ABOVE, centsnat, nat_edosteps),
+                      (WHITE_UP_ABOVE, centsup, nat_edosteps + 1)]
         else:
-            centssharp = calc_cent_offset(nat_diesis, semitones_from_a4)
-            centsflat = calc_cent_offset(nat_diesis + 1, semitones_from_a4)
-            centsupnext = calc_cent_offset(nat_diesis + 4, semitones_from_a4)
-            keymap = [(BLACK_SHARP, centssharp, nat_diesis),
-                      (BLACK_FLAT, centsflat, nat_diesis + 1),
-                      (BLACK_WHITE_UP_COURTESY, centsupnext, nat_diesis + 4)]
+            centssharp = calc_cent_offset(nat_edosteps, semitones_from_a4)
+            centsflat = calc_cent_offset(nat_edosteps + 1, semitones_from_a4)
+            centsupnext = calc_cent_offset(nat_edosteps + 4, semitones_from_a4)
+            keymap = [(BLACK_SHARP, centssharp, nat_edosteps),
+                      (BLACK_FLAT, centsflat, nat_edosteps + 1),
+                      (BLACK_WHITE_UP_COURTESY, centsupnext, nat_edosteps + 4)]
 
         outputline = f'{notename:<4}'
         for cc74, cents, diesis in keymap:

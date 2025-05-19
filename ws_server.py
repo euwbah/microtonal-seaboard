@@ -9,11 +9,11 @@ from time import sleep
 import janus
 import websockets
 
-
 message_queue = {}
 
+WS_SERVER = None
 
-async def handler(websocket, path):
+async def handler(websocket: websockets.ServerConnection):
     global message_queue
     await websocket.send('hello')
 
@@ -26,16 +26,25 @@ async def handler(websocket, path):
         message = await message_queue['async'].get()
         await websocket.send(message)
 
-
 def start_ws_server():
+    global WS_SERVER
     print('starting websocket server at 127.0.0.1:8765')
 
+
+    async def server():
+        global WS_SERVER
+        WS_SERVER = websockets.serve(handler, "localhost", 8765)
+        async with WS_SERVER as server:
+            await server.serve_forever()
+
     def ws_thread():
-        loop = new_event_loop()
-        set_event_loop(loop)
-        server = websockets.serve(handler, '127.0.0.1', 8765)
-        loop.run_until_complete(server)
-        loop.run_forever()
+        # This used to work, not anymore.
+        # WS_EVENT_LOOP = new_event_loop()
+        # set_event_loop(WS_EVENT_LOOP)
+        # server_coroutine = websockets.serve(handler, '127.0.0.1', 8765, loop=WS_EVENT_LOOP)
+        # WS_EVENT_LOOP.run_until_complete(server_coroutine)
+        # WS_EVENT_LOOP.run_forever()
+        asyncio.run(server())
 
     Thread(target=ws_thread).start()
 
