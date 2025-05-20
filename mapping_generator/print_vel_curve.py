@@ -17,16 +17,24 @@ Where to separate piecewise functions. Strictly ascending. Each number is the in
 for the next function and the exclusive upper bound for the current function.
 """
 
-# Med low sens curve: https://www.desmos.com/calculator/o3wzney1qh
-
+# Very low sens curve: https://www.desmos.com/calculator/mrcpttdopu
 functions = [
-    lambda x: math.pow(x, 0.75) + 0.02,
-    lambda x: 0.6146 + (1 - 0.6146) / (1 - 0.5) * (x - 0.5)
+    lambda x: math.pow(x, 0.66) + 0.1,
+    lambda x: 0.732878 + (1 - 0.732878) / (1 - 0.5) * (x - 0.5)
+]
+domains = [
+    0.5
 ]
 
-domains = [
-    0.5,
-]
+# Med low sens curve: https://www.desmos.com/calculator/o3wzney1qh
+# functions = [
+#     lambda x: math.pow(x, 0.75) + 0.02,
+#     lambda x: 0.6146 + (1 - 0.6146) / (1 - 0.5) * (x - 0.5)
+# ]
+
+# domains = [
+#     0.5,
+# ]
 
 # Default curve
 # functions = [

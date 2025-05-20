@@ -35,7 +35,6 @@ class MidiInputHandler():
         msg_type, channel = EVENT_MASK & message[0], CHANNEL_MASK & message[0]
 
         def tune_and_send_note(note, vel, cc74):
-
             edosteps_from_a4 = mapping.calc_notes_from_a4(note, cc74)
             scaled_vel = CONFIGS.VELOCITY_CURVES.get_velocity(note, vel, self.octave_offset, cc74, CONFIGS.DEBUG)
 
