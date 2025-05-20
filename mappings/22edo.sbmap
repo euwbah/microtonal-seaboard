@@ -1,13 +1,13 @@
 /   22 edo mapping for seaboard. White keys form super pyth[7] in C.
 /   pitch bends in MPE mode are based on A4 = 440Hz
-/   
+/
 /   Key splits (bottom-to-top):
 /       White key: down (sharp of tone below), natural, up (flat of tone above),
 /       Black key: sharp-down/flat-up
-/   
+/
 /   Supports MIDI mode, A4 is the anchoring equivalent note.
 /   Each diesis raises midi output by 1 semitone.
-/   
+/
 /   Note: in MIDI mode, a +1 octave shift on the VST has to be accounted
 /         for with -22 semitone output offset configuration in the split offset
 /         configuration. To get the 'full range' of a piano, one will

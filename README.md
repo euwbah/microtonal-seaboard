@@ -19,7 +19,7 @@
   - Absolute
   - Link slide to press (channel pressure)
   - Bipolar
-- Invert sustain pedal (because I couldn't find this feature in Equator lmao)
+- Invert sustain pedal (because I couldn't find this feature in Equator)
 
 ## Quick Start
 
@@ -188,6 +188,41 @@ As such, if you're using two instances of Keyscape, it is crucial
 that you turn off the sustain pedal noise on either one of the VSTs,
 otherwise you'd get double the sustain pedal noise.
 
+### Key split data example
+
+For example, this is
+[line 92 of the default 31 edo mapping](https://github.com/euwbah/microtonal-seaboard/blob/master/mappings/default.sbmap#L92):
+
+`A4    30 -38.7097   -1  50   0.0000    0  73  38.7097    1  98   0.0000    0 128  38.7097    1`
+
+The first value of the line, `A4` is the note name of which this
+split data pertains to. The split information only applies to this
+one key. Capitalisation does not matter.
+
+After this, the values are presented in groups of threes.
+
+The value `30` represents that the following tuning data only applies
+when the Slide value (CC74) is below 30 (exclusive). This is the area
+right at the bottom of the white keys on the seaboard.
+
+The next value `-38.7097` represents the cent offset of this note
+with respect to the 12 edo equivalent on the same key.
+In 31 edo, this is the note A-down. The cent offset is used to
+calculate the amount of pitch bend to send when in MPE mode.
+
+The final value of the triple is `-1`, and this says that the
+output of this key when in MIDI mode is 1 note below A4 (that is, Ab4).
+
+Looking at the next 3 values, `50 0.0000 0`, tells us that for the
+Slide values 30-49 (inclusive), which is the middle section of the
+white key, we will apply a tuning offset of 0 cents in MPE mode,
+and an output of A4 in MIDI mode.
+In 31 edo, this is the note A-natural.
+
+The next 3 values, `73 38.7097 1` gives us the note A-up, and will
+be applied for Slide values 50-72 (inclusive), which is the part of
+the white key right below where the black keys begin.
+
 ### Microtuning on Pianoteq
 
 Pianoteq offers [multi-channel keyboard mappings](https://forum.modartt.com/viewtopic.php?id=4307)
@@ -196,15 +231,15 @@ full range.
 
 To make use of this in the seaboard mapper:
 
-1. enter `autosplit` in the console to turn auto split mode on
+1. Enter the `autosplit` command in the console to turn auto split mode on
 
 2. Under Pianoteq's microtuning screen, there's a button on the top right
   to change the **keyboard mapping**. Click on it and you will see an option
   titled '**Extended layout for up to 16*128 notes**'. Open the drop down and select **MIDI channel 5**
-  
+
 ![img.png](imgs/extended-layout-pianoteq.png)
 
-- This will cause the notes received on each subsequent MIDI channel 
+- This will cause the notes received on each subsequent MIDI channel
   to sound one octave higher than the previous MIDI channel.
 - The checked midi channel (5) denotes the MIDI channel that will not have any octave/equave transposition at all.
 - E.g. if MIDI channel 5 is selected as the main channel,
@@ -258,91 +293,11 @@ Initial Strike will yield a Slide value of 0, and sliding
 all the way to either to top or bottom will yield the max Slide value of
 127.
 
-## Seaboard Map `.sbmap` file format
+## Invert sustain pedal
 
-The mapper loads `.sbmap` files to assign a mapping to the seaboard.
-If `mappings/default.sbmap` exists, it will load that mapping on
-startup.
+The `sus` command toggle the sustain pedal polarity (so you don't have to reach for the physical switch on yours)
 
-Each line of the .sbmap file can either be a descriptive comment,
-a comment, or key split data.
-
-Mappings are meant to be generated algorithmically with a script.
-Take a look at https://github.com/euwbah/microtonal-seaboard/blob/master/mapping_generator/edo31.py
-for an example.
-
-### `/ descriptive comment`
-
-Lines that begin with `/` will be printed in the console
-when the mapping is loaded.
-
-### `# comment`
-
-Lines that begin with `#` will be ignored entirely
-
-### Key split data
-
-This line will describe how to split one key.
-
-The values of the key split data are to be separated by spaces
-or tabs, and are presented in the following format:
-
-`<note> <p1> <c1> <s1> (<p2> <c2> <s2> ... <pn> <cn> <sn>)`
-
-- `note`: 12edo note name of the key that this split applies to
-- `pn`: a cc74 (slide) value representing the exclusive upper bounds
-   of the nth vertical split point
-- `cn`: (for MPE mode) the cents offset of the output note with respect to the
-   key's original tuning in 12 edo.
-- `sn`: (for MIDI mode) the output MIDI note represented as number of
-   steps from the note A4.
-
-Take note of the following constraints:
-
-1. Key split data lines must have at least one split point.
-2. The split points must be presented in order of increasing
-   cc74 (Slide) values
-3. The final split point must always be 128 representing the
-   maxima of the cc74 value range.
-4. You can leave out notes in the mapping file. Not all
-   of them have to be mapped in order for the program to work.
-   The left-out notes will default to the standard behavior
-   and tuning.
-
-#### Key split data example
-
-For example, this is
-[line 92 of the default 31 edo mapping](https://github.com/euwbah/microtonal-seaboard/blob/master/mappings/default.sbmap#L92):
-
-`A4    30 -38.7097   -1  50   0.0000    0  73  38.7097    1  98   0.0000    0 128  38.7097    1`
-
-The first value of the line, `A4` is the note name of which this
-split data pertains to. The split information only applies to this
-one key. Capitalisation does not matter.
-
-After this, the values are presented in groups of threes.
-
-The value `30` represents that the following tuning data only applies
-when the Slide value (CC74) is below 30 (exclusive). This is the area
-right at the bottom of the white keys on the seaboard.
-
-The next value `-38.7097` represents the cent offset of this note
-with respect to the 12 edo equivalent on the same key.
-In 31 edo, this is the note A-down. The cent offset is used to
-calculate the amount of pitch bend to send when in MPE mode.
-
-The final value of the triple is `-1`, and this says that the
-output of this key when in MIDI mode is 1 note below A4 (that is, Ab4).
-
-Looking at the next 3 values, `50 0.0000 0`, tells us that for the
-Slide values 30-49 (inclusive), which is the middle section of the
-white key, we will apply a tuning offset of 0 cents in MPE mode,
-and an output of A4 in MIDI mode.
-In 31 edo, this is the note A-natural.
-
-The next 3 values, `73 38.7097 1` gives us the note A-up, and will
-be applied for Slide values 50-72 (inclusive), which is the part of
-the white key right below where the black keys begin.
+##
 
 ### Huh?
 

@@ -20,6 +20,12 @@ class MidiInputHandler():
     def __init__(self, out_port: MidiOut):
         self.out_port = out_port
         self._wallclock = time.time()
+        self.octave_offset = 4
+        """
+        The lowest note on the Rise 49 is C with octave one less than this.
+
+        CC 06 (Data Entry MSB) gives the octave offset when it is updated.
+        """
 
     def __call__(self, event, data=None):
         mapping = CONFIGS.MAPPING
@@ -31,20 +37,25 @@ class MidiInputHandler():
         def tune_and_send_note(note, vel, cc74):
 
             edosteps_from_a4 = mapping.calc_notes_from_a4(note, cc74)
+            scaled_vel = CONFIGS.VELOCITY_CURVES.get_velocity(note, vel, self.octave_offset, cc74, CONFIGS.DEBUG)
+
+            pitchbend = None
 
             if CONFIGS.MPE_MODE:
                 pitchbend = mapping.calc_pitchbend(note, cc74)
                 # pitch bend has to go before the note on event
                 # otherwise equator might not register it.
                 self.send_pitch_bend(channel, pitchbend)
-                self.send_note_on(channel, note, vel)
+                self.send_note_on(channel, note, scaled_vel)
 
                 if CONFIGS.SLIDE_MODE == SlideMode.FIXED:
                     self.send_cc(channel, 74, CONFIGS.SLIDE_FIXED_N)
+                # NOTE: the vel parameter is raw, before applying velocity curve
                 tracker.register_on(note, vel, channel, note, channel, edosteps_from_a4, pitchbend)
 
                 # pitch bend has to go after note on event
                 # otherwise strobe 2 complete disregards it
+                # because of this we have to send it twice
                 self.send_pitch_bend(channel, pitchbend)
             else:
                 if CONFIGS.AUTO_SPLIT is not None:
@@ -58,7 +69,7 @@ class MidiInputHandler():
                     send_note = max(0, min(127, send_note))
                     print('Midi note out of range! Consider using mutliple vst instances in different octaves '
                           'and split ranges with pitch offsets when in MIDI mode.')
-                self.send_note_on(send_ch, send_note, vel)
+                self.send_note_on(send_ch, send_note, scaled_vel)
 
                 # if a note overrides another active note in the same input channel,
                 # stop that note. Prevents ghosts that hang around.
@@ -74,9 +85,13 @@ class MidiInputHandler():
                 if CONFIGS.SLIDE_MODE == SlideMode.FIXED:
                     threading.Thread(target=do_later).start()
 
+                # NOTE: the vel parameter is raw, before applying velocity curve
                 tracker.register_on(note, vel, channel, send_note, send_ch, edosteps_from_a4)
 
-            ws_server.send_note_on(edosteps_from_a4, vel)
+            ws_server.send_note_on(edosteps_from_a4, scaled_vel)
+
+            if CONFIGS.DEBUG:
+                print(f'recv: (note {note}, vel {vel}, cc74 {cc74}), sent: (note {edosteps_from_a4}, {f"pb {pitchbend}, " if CONFIGS.MPE_MODE else ""}vel {scaled_vel})')
 
         if msg_type == midi.NOTE_ON:
             note, vel = message[1:3]
@@ -149,6 +164,9 @@ class MidiInputHandler():
                 sustain_value = value if not CONFIGS.TOGGLE_SUSTAIN else 127 - value
                 self.send_cc(c, cc, sustain_value)
                 ws_server.send_cc(cc, sustain_value)
+            elif cc == 6: # Data Entry MSB, octave switch
+                self.octave_offset = value
+                self.send_cc(c, cc, value)
             else:
                 self.send_cc(c, cc, value)
 

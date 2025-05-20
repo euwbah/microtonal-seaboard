@@ -6,6 +6,7 @@ import dill
 
 from mapping import Mapping
 from split import SplitData
+from velcurve import VelocityCurves
 
 
 class SlideMode(Enum):
@@ -34,6 +35,8 @@ class CONFIGS:
     PITCH_BEND_RANGE: int = 24
     MAPPING: Mapping
     TOGGLE_SUSTAIN: bool = False
+    VELOCITY_CURVES: VelocityCurves = VelocityCurves()
+    DEBUG: bool = False
 
 
 def read_configs() -> bool:
@@ -57,6 +60,8 @@ def read_configs() -> bool:
             CONFIGS.PITCH_BEND_RANGE = c['PITCH_BEND_RANGE']
             CONFIGS.MAPPING = c['MAPPING']
             CONFIGS.TOGGLE_SUSTAIN = c['TOGGLE_SUSTAIN']
+            CONFIGS.VELOCITY_CURVES = c['VELOCITY_CURVES']
+            CONFIGS.DEBUG = c['DEBUG']
 
     except Exception:
         print('failed to load saved configurations. Delete config.dill.')
@@ -77,6 +82,8 @@ def save_configs():
             'AUTO_SPLIT': CONFIGS.AUTO_SPLIT,
             'PITCH_BEND_RANGE': CONFIGS.PITCH_BEND_RANGE,
             'MAPPING': CONFIGS.MAPPING,
-            'TOGGLE_SUSTAIN': CONFIGS.TOGGLE_SUSTAIN
+            'TOGGLE_SUSTAIN': CONFIGS.TOGGLE_SUSTAIN,
+            'VELOCITY_CURVES': CONFIGS.VELOCITY_CURVES,
+            'DEBUG': CONFIGS.DEBUG
         }
         dill.dump(c, f)

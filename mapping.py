@@ -2,6 +2,7 @@ import re
 
 import configs
 import convert
+import os
 
 
 class MapParsingError(Exception):
@@ -9,13 +10,13 @@ class MapParsingError(Exception):
         super().__init__('Error parsing mapping. ' + msg)
 
 class Mapping:
-    def __init__(self, sbm_file_path):
+    def __init__(self, sbm_file_path: str):
         self.__keys = {}
         """
                 data format:
                 {
-                    midinote: [(exclusive upper bound of cc74 representing current split, 
-                                cent offsets, 
+                    midinote: [(exclusive upper bound of cc74 representing current split,
+                                cent offsets,
                                 number of steps from A4 in MIDI mode (if the mapping doesn't support MIDI mode,
                                 this will all be 0, or whatever placeholder value the mapping uses)]
                 }
@@ -34,8 +35,8 @@ class Mapping:
         """
 
         self.load_mapping(sbm_file_path)
-        
-        
+        self.mapping_file_name = os.path.basename(sbm_file_path)
+
         # Add heuristic for how many edosteps per octave (assumes octaves are mapped all the same on the seaboard)
         # Calculate step offset difference between lowest split of C4 to C5 to get EDO
         self.edo = self.__keys[convert.notename_to_midinum('c5')][0][2] - self.__keys[convert.notename_to_midinum('c4')][0][2]
@@ -43,10 +44,10 @@ class Mapping:
         A heuristic guess on how many steps correspond to an octave. Used for auto splitting in MIDI mode.
         '''
 
-    def load_mapping(self, sbm_file_path):
+    def load_mapping(self, sbm_file_path: str):
         self.__keys = {}
 
-        with open(sbm_file_path,mode='r') as f:
+        with open(sbm_file_path, mode='r') as f:
             linecount = 0
             while line := f.readline():
                 linecount += 1

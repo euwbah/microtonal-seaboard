@@ -1,5 +1,11 @@
 # Changelog
 
+### v0.6
+
+- Update to Python 3.12, updated dependencies.
+- Fixed Windows build batch script.
+- Add per-key velocity curve configuration.
+
 ### v0.3.0
 
 - Added config persistence with the `save` command.

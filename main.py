@@ -8,6 +8,7 @@ from rtmidi.midiutil import open_midiinput, open_midioutput
 
 import configs
 import convert
+from velcurve import VelocityCurves
 import ws_server
 from configs import SlideMode, CONFIGS
 from handler import MidiInputHandler
@@ -114,6 +115,30 @@ def select_mapping(search_default=False):
 
     root.withdraw()
 
+def select_vel_curve():
+    print('')
+    print('SEABOARD VELOCITY CURVE SELECTION')
+    print('')
+
+    root.deiconify()
+
+    path = filedialog.askopenfilename(
+        title='Choose seaboard velocity curve file',
+        initialdir='./',
+        filetypes=(('Seaboard velocity curve files', '*.vel'),)
+    )
+
+    if not os.path.isfile(path):
+        print(f"{path} doesn't exist!")
+
+    try:
+        CONFIGS.VELOCITY_CURVES = VelocityCurves(path)
+    except Exception:
+        print('unknown error:')
+        traceback.print_exc()
+
+    root.withdraw()
+
 
 def select_pitch_bend_range():
     while True:
@@ -141,8 +166,31 @@ def intable(s):
         return False
 
 
+def print_help():
+    print(f"""
+    supported commands:
+    mpe         {'(active)' if CONFIGS.MPE_MODE else '        '}        set to mpe mode
+    midi        {'(active)' if not CONFIGS.MPE_MODE else '        '}        set to midi mode
+    slide <n>|prs|rel|abs|bip   set slide message forwarding mode.
+                                    <n>: {f'(active, fixed to {CONFIGS.SLIDE_FIXED_N})' if CONFIGS.SLIDE_MODE == SlideMode.FIXED else '        '} fixed slide value (choose from 0-127)
+                                    prs: {'(active)' if CONFIGS.SLIDE_MODE == SlideMode.PRESS else '        '} map to press dimension
+                                    rel: {'(active)' if CONFIGS.SLIDE_MODE == SlideMode.RELATIVE else '        '} emulate relative slide mode
+                                    abs: {'(active)' if CONFIGS.SLIDE_MODE == SlideMode.ABSOLUTE else '        '} emulate absolute slide mode
+                                    bip: {'(active)' if CONFIGS.SLIDE_MODE == SlideMode.BIPOLAR else '        '} (default) emulate bipolar mode
+    split                       set split points (for midi mode)
+    autosplit   {'(active)' if CONFIGS.AUTO_SPLIT is not None else '        '}        toggle auto-split for Pianoteq (for midi mode)
+    map {CONFIGS.MAPPING.mapping_file_name:^23} select new .sbmap tuning file
+    vel {CONFIGS.VELOCITY_CURVES.file_name:^23} select .vel velocity curve file
+    pb          +/-{CONFIGS.PITCH_BEND_RANGE:<8}     change pitch bend amount
+    sus         {'-' if CONFIGS.TOGGLE_SUSTAIN else '+'}               toggles sustain pedal polarity
+    save                        saves all current settings (not automatic)
+    debug       {'on ' if CONFIGS.DEBUG else 'off'}             toggles debug mode
+    exit                        exit the program
+    """)
+
+
 if __name__ == '__main__':
-    print('microtonal seaboard retuner v0.5.1')
+    print('microtonal seaboard retuner v0.6')
 
     has_read_configs = configs.read_configs()
 
@@ -163,7 +211,9 @@ if __name__ == '__main__':
         print('')
         select_pitch_bend_range()
 
-    print('')
+    print()
+
+    print_help()
 
     print(f'Starting microtonal message forwarding in '
           f'{"MPE" if CONFIGS.MPE_MODE else "MIDI"} mode...')
@@ -171,24 +221,6 @@ if __name__ == '__main__':
     ws_server.start_ws_server()
 
     seaboard.set_callback(MidiInputHandler(virtual_port))
-
-    print("""
-    supported commands:
-    mpe                         set to mpe mode (default)
-    midi                        set to midi mode
-    slide <n>|prs|rel|abs|bip   set slide message forwarding mode.
-                                    <n>: fixed slide value (choose from 0-127)
-                                    prs: map to press dimension
-                                    rel: emulate relative slide mode
-                                    abs: emulate absolute slide mode
-                                    bip: (default) emulate bipolar mode
-    split                       set split points (for midi mode)
-    autosplit                   toggle auto-split for Pianoteq (for midi mode)
-    map                         select new .sbmap file
-    pb                          change pitch bend amount
-    sus                         toggles sustain pedal polarity
-    save                        saves all current settings (not automatic)
-    exit                        exit the program""")
 
     while True:
         s = input('>> ').strip().lower()
@@ -253,8 +285,16 @@ if __name__ == '__main__':
             print(f'Auto Split: {"on" if CONFIGS.AUTO_SPLIT is not None else "off"}')
         elif s == 'map':
             select_mapping()
+        elif s == 'vel':
+            select_vel_curve()
+            print('Press octave switch to track octave offset.')
         elif s == 'pb':
             select_pitch_bend_range()
         elif s == 'sus':
             CONFIGS.TOGGLE_SUSTAIN = not CONFIGS.TOGGLE_SUSTAIN
             print(f'Invert sustain: {"on" if CONFIGS.TOGGLE_SUSTAIN else "off"}')
+        elif s == 'debug':
+            CONFIGS.DEBUG = not CONFIGS.DEBUG
+            print(f'Debug mode: {"on" if CONFIGS.DEBUG else "off"}')
+        else:
+            print_help()

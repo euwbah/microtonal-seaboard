@@ -17,9 +17,9 @@ class ChannelWrapper:
         """
         Race conditions can cause a note on event to be handled before its corresponding
         cc74 message. Das not gud.
-        This flag is set to True upon note off, and will only be set to false when a 
+        This flag is set to True upon note off, and will only be set to false when a
         cc74 message has been registered.
-        
+
         If a cc74 message is registered before a note on event, no problem.
         If a cc74 message is only registered after a note on event, the cc74 message
         has to act as if the note was not yet on, and the appropriate pitch bends and
@@ -34,22 +34,24 @@ class ChannelWrapper:
 
         self.on_velocity_received = 0
         """
-        Stores the on velocity that was received in the event that the note cannot be
+        Stores the raw on velocity that was received in the event that the note cannot be
         immediately forwarded as it is pending a cc74 message.
+
+        This is the raw value before velocity curve is applied.
         """
 
         self.midi_note_sent = 0
         """
         Represents the midi note number that was sent as a result
         of the input on this current channel.
-        
+
         In MIDI mode, this note number does not correlate to the
         input note that was received on this channel
-        
+
         This is used to turn off the appropriate midi note
         should there be a 'on' event on two notes on the same channel
         on the input when in MIDI mode.
-        
+
         This prevents hanging notes in MIDI mode when there are more than
         16 simultaneous input notes.
         """
@@ -57,13 +59,13 @@ class ChannelWrapper:
         self.channel_sent = 0
         """
         Represents the channel that this note was sent to.
-        
+
         In MIDI mode, the channel of the input note does not
         correlate to the channel of the output note.
-        
+
         This keeps track of the channel the note was sent on
         so that the appropriate midi note can be turned off.
-        
+
         This prevents hanging notes in MIDI mode when there are more than
         16 simultaneous input notes.
         """
