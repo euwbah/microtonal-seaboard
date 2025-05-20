@@ -228,14 +228,19 @@ messages unchanged.
 Enter `slide bip` to emulate bipolar slide mode. Initial Strike will yield a Slide value of 0, and
 sliding all the way to either to top or bottom will yield the max Slide value of 127.
 
-## Invert sustain pedal
+### Invert sustain pedal
 
 The `sus` command toggle the sustain pedal polarity (so you don't have to reach for the physical
 switch on yours)
 
-## Making your own tuning mappings
+### Velocity curve
 
-See [mappings/README.md](mappings/README.md) for more information on how to create your own
+The `vel` command lets you load a `.vel` file to set velocity curves per key per cc74 (up to 49
+&times; 127 resolution).
+
+## Making your own tuning mappings/velocity curves
+
+See [mappings/README.md](mappings/README.md) for more information on how to support custom tunings or create custom velocity curves.
 
 ## Build Instructions
 
