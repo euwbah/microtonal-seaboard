@@ -51,6 +51,51 @@ Take note of the following constraints:
    The left-out notes will default to the standard behavior
    and tuning.
 
+### Key split data example
+
+For example, this is [line 92 of the default 31 edo mapping](https://github.com/euwbah/microtonal-seaboard/blob/master/mappings/default.sbmap#L92):
+
+`A4    30 -38.7097   -1  50   0.0000    0  73  38.7097    1  98   0.0000    0 128  38.7097    1`
+
+The first value of the line, `A4` is the note name of which this split data pertains to. The split
+information only applies to this one key. Capitalisation does not matter.
+
+After this, the values are presented in groups of threes.
+
+The value `30` represents that the following tuning data only applies when the Slide value (CC74) is
+below 30 (exclusive). This is the area right at the bottom of the white keys on the seaboard.
+
+The next value `-38.7097` represents the cent offset of this note with respect to the 12 edo
+equivalent on the same key. In 31 edo, this is the note A-down. The cent offset is used to calculate
+the amount of pitch bend to send when in MPE mode.
+
+The final value of the triple is `-1`, and this says that the output of this key when in MIDI mode
+is 1 note below A4 (that is, Ab4).
+
+Looking at the next 3 values, `50 0.0000 0`, tells us that for the Slide values 30-49 (inclusive),
+which is the middle section of the white key, we will apply a tuning offset of 0 cents in MPE mode,
+and an output of A4 in MIDI mode. In 31 edo, this is the note A-natural.
+
+The next 3 values, `73 38.7097 1` gives us the note A-up, and will be applied for Slide values 50-72
+(inclusive), which is the part of the white key right below where the black keys begin.
+
+### Huh?
+
+Don't worry if this is all too cryptic. If you want a mapping for your seaboard, simply [file an
+issue](https://github.com/euwbah/microtonal-seaboard/issues/new) with the "Mapping Request" label,
+detailing:
+
+- The tuning system (+ base tuning frequency)
+- The mapping points, e.g.: _"white key: down = 0-29, natural = 30-55, up = 56-127_
+  - To know exactly what Slide values are being sent when you press a key at a certain vertical
+    position, you can use a [MIDI monitoring tool](https://www.morson.jp/pocketmidi-webpage/) and
+    filter to view only Control Change messages that are CC74.
+
+- If the tuning system is meant to work with MIDI-only synths (e.g. Pianoteq/Kontakt/ZynAddSubFX),
+  which 12 edo note to anchor the tuning system to.
+
+I will try my best to get it done :)
+
 ## Velocity curve `.vel` file format
 
 The `vel` command lets you load a `.vel` file to set velocity curves per cc74 (vertical slide) regions per physical key (there are 49 on the RISE 49). You can specify as many vertical regions as you want per key, but too many vertical regions will increase latency for that key in particular.
