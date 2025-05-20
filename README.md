@@ -277,9 +277,9 @@ When that is finished, you should see a new file: `microtonal-seaboard.zip` insi
 app is contained within. Congrats!
 
 
-### Build for Windows (you have to be on Windows 10)
+### Build for Windows (you have to be on Windows 10/11)
 
-1. You have to be on Windows 10 _(Pyinstaller doesn't support cross-compile)_
+1. You have to be on Windows 10/11 _(Pyinstaller doesn't support cross-compile)_
 2. [Install the latest version of Python](https://www.python.org/downloads/)
    - Double check that you are using the right version of python by opening the terminal/powershell,
      then enter `py --version`
