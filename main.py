@@ -190,7 +190,7 @@ def print_help():
 
 
 if __name__ == '__main__':
-    print('microtonal seaboard retuner v0.6')
+    print('microtonal seaboard retuner v0.6.1')
 
     has_read_configs = configs.read_configs()
 

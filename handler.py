@@ -195,22 +195,31 @@ class MidiInputHandler():
 
     def send_note_on(self, channel, note, vel):
         if channel == ALL_CHANNELS:
-            for c in range(0, CONFIGS.SPLITS.get_num_channels_used()):
-                self.out_port.send_message([midi.NOTE_ON + c, note, vel])
+            if CONFIGS.AUTO_SPLIT is not None:
+                self.out_port.send_message([midi.NOTE_ON + 0, note, vel])
+            else:
+                for c in range(0, CONFIGS.SPLITS.get_num_channels_used()):
+                    self.out_port.send_message([midi.NOTE_ON + c, note, vel])
         else:
             self.out_port.send_message([midi.NOTE_ON + channel, note, vel])
 
     def send_note_off(self, channel, note, vel):
         if channel == ALL_CHANNELS:
-            for c in range(0, CONFIGS.SPLITS.get_num_channels_used()):
-                self.out_port.send_message([midi.NOTE_OFF + c, note, vel])
+            if CONFIGS.AUTO_SPLIT is not None:
+                self.out_port.send_message([midi.NOTE_OFF + 0, note, vel])
+            else:
+                for c in range(0, CONFIGS.SPLITS.get_num_channels_used()):
+                    self.out_port.send_message([midi.NOTE_OFF + c, note, vel])
         else:
             self.out_port.send_message([midi.NOTE_OFF + channel, note, vel])
 
     def send_cc(self, channel, cc, val):
         if channel == ALL_CHANNELS:
-            for c in range(0, CONFIGS.SPLITS.get_num_channels_used()):
-                self.out_port.send_message([midi.CONTROL_CHANGE + c, cc, val])
+            if CONFIGS.AUTO_SPLIT is not None:
+                self.out_port.send_message([midi.CONTROL_CHANGE + 0, cc, val])
+            else:
+                for c in range(0, CONFIGS.SPLITS.get_num_channels_used()):
+                    self.out_port.send_message([midi.CONTROL_CHANGE + c, cc, val])
         else:
             self.out_port.send_message([midi.CONTROL_CHANGE + channel, cc, val])
 
@@ -219,8 +228,11 @@ class MidiInputHandler():
     def send_pitch_bend(self, channel, pitchbend):
         lsb, msb = convert.pitch_bend_to_raw_pitch_msg(pitchbend)
         if channel == ALL_CHANNELS:
-            for c in range(0, CONFIGS.SPLITS.get_num_channels_used()):
-                self.out_port.send_message([midi.PITCH_BEND + c, lsb, msb])
+            if CONFIGS.AUTO_SPLIT is not None:
+                self.out_port.send_message([midi.PITCH_BEND + 0, lsb, msb])
+            else:
+                for c in range(0, CONFIGS.SPLITS.get_num_channels_used()):
+                    self.out_port.send_message([midi.PITCH_BEND + c, lsb, msb])
         else:
             self.out_port.send_message([midi.PITCH_BEND + channel, lsb, msb])
 

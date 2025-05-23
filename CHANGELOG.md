@@ -1,5 +1,9 @@
 # Changelog
 
+### v0.6.1
+
+- Fixed autosplit not sending `ALL_CHANNELS` on/off/cc/pitchbend messages (e.g., in MIDI mode) if SPLIT was never configured before. Now autosplit will send `ALL_CHANNELS` on channel 1 by default.
+
 ### v0.6
 
 - Update to Python 3.12, updated dependencies.
