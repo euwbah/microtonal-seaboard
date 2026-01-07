@@ -53,11 +53,7 @@ jobs:
       shell: bash
       run: |
         cd dist/${{ matrix.ARTIFACT_DIR }}
-        if [[ "${{ matrix.TARGET }}" == "macos" ]]; then
-          zip -r ../${{ matrix.OUT_FILE_NAME }} .
-        else
-          tar -czf ../${{ matrix.OUT_FILE_NAME }} .
-        fi
+        zip -r ../${{ matrix.OUT_FILE_NAME }} .
         cd ../..
     - name: Upload build artifact
       uses: actions/upload-artifact@v6
