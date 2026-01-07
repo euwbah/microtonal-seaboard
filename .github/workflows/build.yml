@@ -52,13 +52,13 @@ jobs:
     - name: Create release zip
       shell: bash
       run: |
-        cd dist
+        cd dist/${{ matrix.ARTIFACT_DIR }}
         if [[ "${{ matrix.TARGET }}" == "macos" ]]; then
-          zip -r ${{ matrix.OUT_FILE_NAME }} ${{ matrix.ARTIFACT_DIR }}
+          zip -r ../${{ matrix.OUT_FILE_NAME }} .
         else
-          tar -a -c -f ${{ matrix.OUT_FILE_NAME }} ${{ matrix.ARTIFACT_DIR }}
+          tar -czf ../${{ matrix.OUT_FILE_NAME }} .
         fi
-        cd ..
+        cd ../..
     - name: Upload build artifact
       uses: actions/upload-artifact@v6
       with:
