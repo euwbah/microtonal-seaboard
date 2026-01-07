@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "microtonal-seaboard"
+version = "0.6.1"
+description = "Microtonal seaboard tooling"
+requires-python = ">=3.12"
+dependencies = [
+  "dill==0.4.0",
+  "janus==2.0.0",
+  "pyinstaller==6.13.0",
+  "pyinstaller-hooks-contrib==2025.4",
+  "python-rtmidi==1.5.8",
+  "typing_extensions==4.13.2",
+  "websockets==15.0.1"
+]
+
+[tool.setuptools]
+py-modules = [
+  "configs",
+  "convert",
+  "handler",
+  "keytracker",
+  "main",
+  "mapping",
+  "split",
+  "velcurve",
+  "ws_server"
+]

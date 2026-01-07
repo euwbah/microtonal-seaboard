@@ -1,19 +1,38 @@
 REM use version 3.12 for now, seems like 3.13 is not supported by rtmidi yet.
-py -3.12 --version >nul 2>&1
-if errorlevel 1 (
-    set PYTHON=python3.12
-) else (
-    set PYTHON=py -3.12
-)   
+set "UV_AVAILABLE="
+where uv >nul 2>&1 && set "UV_AVAILABLE=1"
 
-%PYTHON% -m pip install --upgrade pip
-%PYTHON% -m pip install --user virtualenv
-%PYTHON% -m venv .venv
+REM Delete existing venv if it exists
+if exist .venv (
+    rmdir /s /q .venv
+)
+
+if exist build (
+    rmdir /s /q build
+)
+
+if exist dist (
+    rmdir /s /q dist
+)
+
+if defined UV_AVAILABLE (
+    REM Ensure Python 3.12 is available and create venv with uv
+    uv python install 3.12
+    uv venv --python 3.12 .venv
+    set "PIP=uv pip"
+    set "PYINSTALLER=uv run pyinstaller"
+) else (
+    py -3.12 -m venv .venv
+    set "PIP=python -m pip"
+    set "PYINSTALLER=python -m pyinstaller"
+)
+
 call .\.venv\Scripts\activate
-python -m pip install --upgrade pip
-pip install --upgrade setuptools
-pip install -r requirements.txt
-pyinstaller microtonal-seaboard.spec &&^
-    cd dist/ &&^
-    tar -a -c -f microtonal-seaboard-windows.zip ../mappings microtonal-seaboard.exe
+%PIP% install --upgrade pip setuptools
+%PIP% install .
+%PYINSTALLER% microtonal-seaboard.spec
+if %errorlevel% neq 0 exit /b %errorlevel%
+cd dist
+tar -a -c -f microtonal-seaboard-windows.zip ../mappings ../mapping_generator microtonal-seaboard.exe
+cd ..
 deactivate
