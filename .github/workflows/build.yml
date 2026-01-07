@@ -56,7 +56,7 @@ jobs:
         if [[ "${{ matrix.TARGET }}" == "macos" ]]; then
           zip -r ../${{ matrix.OUT_FILE_NAME }} .
         else
-          tar -acf ../${{ matrix.OUT_FILE_NAME }} .
+          powershell -Command "Compress-Archive -Path . -DestinationPath ../${{ matrix.OUT_FILE_NAME }}"
         fi
         cd ../..
     - name: Upload build artifact
