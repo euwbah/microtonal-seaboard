@@ -5,6 +5,9 @@ on:
     tags:
       - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
 
+permissions:
+  contents: write
+
 jobs:
   build:
     name: Build packages
@@ -30,9 +33,9 @@ jobs:
             ASSET_MIME: application/zip
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v4.1.7
     - name: Set up Python 3.12
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v5.1.0
       with:
         python-version: '3.12'
     - name: Install dependencies
@@ -41,8 +44,27 @@ jobs:
         pip install -r requirements.txt
     - name: Build with pyinstaller for ${{matrix.TARGET}}
       run: ${{matrix.CMD_BUILD}}
-    - name: Release
-      uses: softprops/action-gh-release@v2
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v4
       with:
-        files: |
-          dist/${{ matrix.OUT_FILE_NAME }}
+        name: ${{ matrix.OUT_FILE_NAME }}
+        path: dist/${{ matrix.OUT_FILE_NAME }}
+        if-no-files-found: error
+
+  release:
+    name: Publish release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4.1.7
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: dist
+    - name: Release
+      uses: softprops/action-gh-release@v2.0.8
+      with:
+        files: dist/**/*
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
