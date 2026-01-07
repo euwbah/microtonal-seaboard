@@ -49,11 +49,21 @@ jobs:
         else
           cp dist/microtonal-seaboard.exe dist/${{ matrix.ARTIFACT_DIR }}/microtonal-seaboard.exe
         fi
+    - name: Create release zip
+      shell: bash
+      run: |
+        cd dist
+        if [[ "${{ matrix.TARGET }}" == "macos" ]]; then
+          zip -r ${{ matrix.OUT_FILE_NAME }} ${{ matrix.ARTIFACT_DIR }}
+        else
+          tar -a -c -f ${{ matrix.OUT_FILE_NAME }} ${{ matrix.ARTIFACT_DIR }}
+        fi
+        cd ..
     - name: Upload build artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
-        name: build-${{ matrix.ARTIFACT_DIR }}
-        path: dist/${{ matrix.ARTIFACT_DIR }}
+        name: ${{ matrix.OUT_FILE_NAME }}
+        path: dist/${{ matrix.OUT_FILE_NAME }}
         if-no-files-found: error
 
   release:
@@ -68,8 +78,8 @@ jobs:
       with:
         path: dist
     - name: Release
-      uses: softprops/action-gh-release@v2.0.8
+      uses: softprops/action-gh-release@v2
       with:
-        files: dist/**/*
+        files: dist/*.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
