@@ -74,6 +74,10 @@ class MidiInputHandler:
                     )
                     * 127
                 )
+                if scaled_vel < 1:
+                    scaled_vel = 1
+                if scaled_vel > 127:
+                    scaled_vel = 127
 
             pitchbend = None
 
