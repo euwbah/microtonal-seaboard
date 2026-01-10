@@ -1,5 +1,9 @@
 # Changelog
 
+### v0.6.2
+
+- Added velocity smoothing: partial solution to seaboard's inaccurate velocity readings by using averaged aftertouch values to dynamically adjust velocity curve so that expected velocity matches intensity of play.
+
 ### v0.6.1
 
 - Fixed autosplit not sending `ALL_CHANNELS` on/off/cc/pitchbend messages (e.g., in MIDI mode) if SPLIT was never configured before. Now autosplit will send `ALL_CHANNELS` on channel 1 by default.

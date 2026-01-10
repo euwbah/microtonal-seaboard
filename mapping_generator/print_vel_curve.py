@@ -1,9 +1,9 @@
 import math
 
-# Low sens curve: https://www.desmos.com/calculator/scfo7kcuai
+# Low sens curve: https://www.desmos.com/calculator/bhl8itnyp1
 functions = [
-    lambda x: math.pow(x, 0.7) + 0.1,
-    lambda x: 0.5 + 0.69 * (x - 0.27)
+    lambda x: math.pow(x, 0.67) + 0.03,
+    lambda x: 0.445924 + (1 - 0.445924) / (1 - 0.27) * (x - 0.27)
 ]
 """
 Piecewise functions for parameter 0 <= x <= 1 corresponding to input velocity 0-127. The output
@@ -17,14 +17,14 @@ Where to separate piecewise functions. Strictly ascending. Each number is the in
 for the next function and the exclusive upper bound for the current function.
 """
 
-# Very low sens curve: https://www.desmos.com/calculator/mrcpttdopu
-functions = [
-    lambda x: math.pow(x, 0.66) + 0.1,
-    lambda x: 0.732878 + (1 - 0.732878) / (1 - 0.5) * (x - 0.5)
-]
-domains = [
-    0.5
-]
+# Very low sens curve: https://www.desmos.com/calculator/fjqz61rk46
+# functions = [
+#     lambda x: math.pow(x, 0.55) + 0.05,
+#     lambda x: 0.73302 + (1 - 0.73302) / (1 - 0.5) * (x - 0.5)
+# ]
+# domains = [
+#     0.5
+# ]
 
 # Med low sens curve: https://www.desmos.com/calculator/o3wzney1qh
 # functions = [

@@ -36,6 +36,12 @@ class CONFIGS:
     MAPPING: Mapping
     TOGGLE_SUSTAIN: bool = False
     VELOCITY_CURVES: VelocityCurves = VelocityCurves()
+    VELOCITY_SMOOTHING: bool = True
+    """
+    If true, use a moving average of "Press" dimension (aftertouch) to control the steepness of the velocity curve.
+
+    Turning this on attempts to reduce the effect of inaccurate velocity sensing on certain areas of the seaboard.
+    """
     DEBUG: bool = False
 
 
@@ -51,7 +57,7 @@ def read_configs() -> bool:
 
     try:
         with open('config.dill', 'rb') as f:
-            c = dill.load(f)
+            c: dict = dill.load(f)
             CONFIGS.MPE_MODE = c['MPE_MODE']
             CONFIGS.SLIDE_MODE = c['SLIDE_MODE']
             CONFIGS.SLIDE_FIXED_N = c['SLIDE_FIXED_N']
@@ -62,6 +68,7 @@ def read_configs() -> bool:
             CONFIGS.TOGGLE_SUSTAIN = c['TOGGLE_SUSTAIN']
             CONFIGS.VELOCITY_CURVES = c['VELOCITY_CURVES']
             CONFIGS.DEBUG = c['DEBUG']
+            CONFIGS.VELOCITY_SMOOTHING = c.get('VELOCITY_SMOOTHING', True)
 
     except Exception:
         print('failed to load saved configurations. Delete config.dill.')
@@ -84,6 +91,7 @@ def save_configs():
             'MAPPING': CONFIGS.MAPPING,
             'TOGGLE_SUSTAIN': CONFIGS.TOGGLE_SUSTAIN,
             'VELOCITY_CURVES': CONFIGS.VELOCITY_CURVES,
+            'VELOCITY_SMOOTHING': CONFIGS.VELOCITY_SMOOTHING,
             'DEBUG': CONFIGS.DEBUG
         }
         dill.dump(c, f)

@@ -27,7 +27,7 @@ if defined UV_AVAILABLE (
     set "PYINSTALLER=python -m pyinstaller"
 )
 
-call .\.venv\Scripts\activate
+call .\.venv\Scripts\activate.bat
 %PIP% install --upgrade pip setuptools
 %PIP% install .
 %PYINSTALLER% microtonal-seaboard.spec

@@ -183,6 +183,7 @@ def print_help():
     vel {CONFIGS.VELOCITY_CURVES.file_name:^23} select .vel velocity curve file
     pb          +/-{CONFIGS.PITCH_BEND_RANGE:<8}     change pitch bend amount
     sus         {'-' if CONFIGS.TOGGLE_SUSTAIN else '+'}               toggles sustain pedal polarity
+    velsm       {'on ' if CONFIGS.VELOCITY_SMOOTHING else 'off'}             toggles velocity smoothing
     save                        saves all current settings (not automatic)
     debug       {'on ' if CONFIGS.DEBUG else 'off'}             toggles debug mode
     exit                        exit the program
@@ -190,7 +191,7 @@ def print_help():
 
 
 if __name__ == '__main__':
-    print('microtonal seaboard retuner v0.6.1')
+    print('microtonal seaboard retuner v0.6.2')
 
     has_read_configs = configs.read_configs()
 
@@ -288,6 +289,9 @@ if __name__ == '__main__':
         elif s == 'vel':
             select_vel_curve()
             print('Press octave switch to track octave offset.')
+        elif s == 'velsm':
+            CONFIGS.VELOCITY_SMOOTHING = not CONFIGS.VELOCITY_SMOOTHING
+            print(f'Velocity Smoothing: {"on" if CONFIGS.VELOCITY_SMOOTHING else "off"}')
         elif s == 'pb':
             select_pitch_bend_range()
         elif s == 'sus':

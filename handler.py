@@ -1,7 +1,7 @@
 import threading
 import time
 import rtmidi.midiconstants as midi
-from rtmidi import MidiIn, MidiOut # type: ignore
+from rtmidi import MidiIn, MidiOut  # type: ignore
 
 import convert
 import ws_server
@@ -10,13 +10,30 @@ from configs import SlideMode, CONFIGS
 
 EVENT_MASK = 0b11110000
 CHANNEL_MASK = 0b00001111
-MIDI_NOTE_A4 = convert.notename_to_midinum('a4')
+MIDI_NOTE_A4 = convert.notename_to_midinum("a4")
 ALL_CHANNELS = -1
+
+SMOOTHING_ALPHA = 0.04
+"""
+When doing velocity smoothing by aftertouch exponential moving average, this is the alpha rate of
+change.
+"""
+SMOOTHING_EFFECT = 0.4
+"""
+How much after touch affects velocity curve steepness. This number is the max increase/decrease of
+the exponent applied to the velocity curve normalized to 0-1, relative to `SMOOTHING_BIAS`.
+"""
+SMOOTHING_BIAS = 1.0
+"""
+What exponent to apply to the velocity curve when aftertouch is at mid point (64).
+
+1.0 is no change.
+"""
 
 tracker = KeyTracker()
 
 
-class MidiInputHandler():
+class MidiInputHandler:
     def __init__(self, out_port: MidiOut):
         self.out_port = out_port
         self._wallclock = time.time()
@@ -25,6 +42,10 @@ class MidiInputHandler():
         The lowest note on the Rise 49 is C with octave one less than this.
 
         CC 06 (Data Entry MSB) gives the octave offset when it is updated.
+        """
+        self.aftertouch_ma = 64
+        """
+        Moving average of aftertouch values. Used for velocity smoothing if enabled.
         """
 
     def __call__(self, event, data=None):
@@ -36,7 +57,23 @@ class MidiInputHandler():
 
         def tune_and_send_note(note, vel, cc74):
             edosteps_from_a4 = mapping.calc_notes_from_a4(note, cc74)
-            scaled_vel = CONFIGS.VELOCITY_CURVES.get_velocity(note, vel, self.octave_offset, cc74, CONFIGS.DEBUG)
+            scaled_vel = CONFIGS.VELOCITY_CURVES.get_velocity(
+                note, vel, self.octave_offset, cc74, CONFIGS.DEBUG
+            )
+
+            if CONFIGS.VELOCITY_SMOOTHING:
+                presmoothed_vel = scaled_vel
+                scaled_vel = round(
+                    (
+                        (scaled_vel / 127)
+                        ** (
+                            SMOOTHING_BIAS
+                            + SMOOTHING_EFFECT
+                            - 2 * SMOOTHING_EFFECT * (self.aftertouch_ma / 127)
+                        )
+                    )
+                    * 127
+                )
 
             pitchbend = None
 
@@ -66,14 +103,16 @@ class MidiInputHandler():
 
                 if 0 > send_note > 127:
                     send_note = max(0, min(127, send_note))
-                    print('Midi note out of range! Consider using mutliple vst instances in different octaves '
-                          'and split ranges with pitch offsets when in MIDI mode.')
+                    print(
+                        "Midi note out of range! Consider using mutliple vst instances in different octaves "
+                        "and split ranges with pitch offsets when in MIDI mode."
+                    )
                 self.send_note_on(send_ch, send_note, scaled_vel)
 
                 # if a note overrides another active note in the same input channel,
                 # stop that note. Prevents ghosts that hang around.
                 if existing := tracker.check_existing(channel):
-                    print(f'max channel used: sent {existing.edosteps_from_a4} off')
+                    print(f"max channel used: sent {existing.edosteps_from_a4} off")
                     self.send_note_off(existing.channel_sent, existing.midi_note_sent, 0)
                     ws_server.send_note_off(existing.edosteps_from_a4, 0)
 
@@ -90,7 +129,11 @@ class MidiInputHandler():
             ws_server.send_note_on(edosteps_from_a4, scaled_vel)
 
             if CONFIGS.DEBUG:
-                print(f'recv: (note {note}, vel {vel}, cc74 {cc74}), sent: (note {edosteps_from_a4}, {f"pb {pitchbend}, " if CONFIGS.MPE_MODE else ""}vel {scaled_vel})')
+                print(
+                    f'recv: (note {note}, vel {vel}, cc74 {cc74}), sent: (note {edosteps_from_a4}, {f"pb {pitchbend}, " if CONFIGS.MPE_MODE else ""}vel {scaled_vel})'
+                )
+                if CONFIGS.VELOCITY_SMOOTHING:
+                    print(f'Aftertouch MA: {round(self.aftertouch_ma)}, vel before smoothing: {presmoothed_vel}')
 
         if msg_type == midi.NOTE_ON:
             note, vel = message[1:3]
@@ -100,8 +143,7 @@ class MidiInputHandler():
             else:
                 tracker.register_received(note, vel, channel)
 
-                print(f'debug: note on before cc74: '
-                      f'{convert.midinum_to_12edo_name(note)}')
+                print(f"debug: note on before cc74: " f"{convert.midinum_to_12edo_name(note)}")
 
         elif msg_type == midi.NOTE_OFF:
             note, vel = message[1:3]
@@ -115,8 +157,10 @@ class MidiInputHandler():
 
                 ws_server.send_note_off(existing.edosteps_from_a4, vel)
             else:
-                print('warning: unable to find existing note to turn off in websocket/MIDI mode. '
-                      'There may be a stuck note present.')
+                print(
+                    "warning: unable to find existing note to turn off in websocket/MIDI mode. "
+                    "There may be a stuck note present."
+                )
 
             tracker.register_off(channel)
 
@@ -129,8 +173,9 @@ class MidiInputHandler():
                     self.send_cc(c, cc, value)
                 elif CONFIGS.SLIDE_MODE == SlideMode.RELATIVE:
                     self.send_cc(c, cc, 64)
-                elif CONFIGS.SLIDE_MODE == SlideMode.PRESS or\
-                        CONFIGS.SLIDE_MODE == SlideMode.BIPOLAR:
+                elif (
+                    CONFIGS.SLIDE_MODE == SlideMode.PRESS or CONFIGS.SLIDE_MODE == SlideMode.BIPOLAR
+                ):
                     self.send_cc(c, cc, 0)
 
             if cc == 74:
@@ -140,18 +185,26 @@ class MidiInputHandler():
                         if CONFIGS.SLIDE_MODE == SlideMode.ABSOLUTE:
                             self.send_cc(c, cc, value)
                         elif CONFIGS.SLIDE_MODE == SlideMode.RELATIVE:
-                            self.send_cc(c, cc, convert.to_relative_slide_output(value, init74_or_note))
+                            self.send_cc(
+                                c, cc, convert.to_relative_slide_output(value, init74_or_note)
+                            )
                         elif CONFIGS.SLIDE_MODE == SlideMode.BIPOLAR:
-                            self.send_cc(c, cc, convert.to_bipolar_slide_output(value, init74_or_note))
+                            self.send_cc(
+                                c, cc, convert.to_bipolar_slide_output(value, init74_or_note)
+                            )
                     elif type(init74_or_note) is ChannelWrapper:
                         # Note was awaiting cc74 to be forwarded.
                         send_preempt_defaults()
-                        tune_and_send_note(init74_or_note.midi_note_received,
-                                           init74_or_note.on_velocity_received,
-                                           value)
+                        tune_and_send_note(
+                            init74_or_note.midi_note_received,
+                            init74_or_note.on_velocity_received,
+                            value,
+                        )
 
-                        print(f'debug: resolved note on before cc74: '
-                              f'{convert.midinum_to_12edo_name(init74_or_note.midi_note_received)}')
+                        print(
+                            f"debug: resolved note on before cc74: "
+                            f"{convert.midinum_to_12edo_name(init74_or_note.midi_note_received)}"
+                        )
 
                 else:
                     # in these other cases, a note is about to happen.
@@ -163,7 +216,7 @@ class MidiInputHandler():
                 sustain_value = value if not CONFIGS.TOGGLE_SUSTAIN else 127 - value
                 self.send_cc(c, cc, sustain_value)
                 ws_server.send_cc(cc, sustain_value)
-            elif cc == 6: # Data Entry MSB, octave switch
+            elif cc == 6:  # Data Entry MSB, octave switch
                 self.octave_offset = value
                 self.send_cc(c, cc, value)
             else:
@@ -171,7 +224,11 @@ class MidiInputHandler():
 
         elif msg_type == midi.PITCH_BEND:
             ls7, ms7 = message[1:3]
-            pb = convert.raw_pitch_msg_to_pitch_bend(ls7, ms7) - 8192 + tracker.get_base_pitch(channel)
+            pb = (
+                convert.raw_pitch_msg_to_pitch_bend(ls7, ms7)
+                - 8192
+                + tracker.get_base_pitch(channel)
+            )
 
             if tracker.check_existing(channel):
                 if CONFIGS.MPE_MODE:
@@ -185,13 +242,23 @@ class MidiInputHandler():
 
             # If slide mode is set to aftertouch, send cc74 according to aftertouch
 
-            if CONFIGS.SLIDE_MODE == SlideMode.PRESS and msg_type == midi.CHANNEL_PRESSURE:
-                if CONFIGS.MPE_MODE:
-                    # note: channel pressure only has 1 data byte, of which represents
-                    #       the value
-                    self.send_cc(channel, 74, message[1])
-                else:
-                    self.send_cc(ALL_CHANNELS, 74, message[1])
+            if msg_type == midi.CHANNEL_PRESSURE:
+
+                aftertouch = message[1]
+
+                if CONFIGS.VELOCITY_SMOOTHING:
+                    # update exponential moving average
+                    self.aftertouch_ma = (
+                        SMOOTHING_ALPHA * aftertouch + (1 - SMOOTHING_ALPHA) * self.aftertouch_ma
+                    )
+
+                if CONFIGS.SLIDE_MODE == SlideMode.PRESS:
+                    if CONFIGS.MPE_MODE:
+                        # note: channel pressure only has 1 data byte, of which represents
+                        #       the value
+                        self.send_cc(channel, 74, aftertouch)
+                    else:
+                        self.send_cc(ALL_CHANNELS, 74, aftertouch)
 
     def send_note_on(self, channel, note, vel):
         if channel == ALL_CHANNELS:
@@ -223,7 +290,7 @@ class MidiInputHandler():
         else:
             self.out_port.send_message([midi.CONTROL_CHANGE + channel, cc, val])
 
-        ws_server.send_cc(cc, val);
+        ws_server.send_cc(cc, val)
 
     def send_pitch_bend(self, channel, pitchbend):
         lsb, msb = convert.pitch_bend_to_raw_pitch_msg(pitchbend)
@@ -238,6 +305,3 @@ class MidiInputHandler():
 
     def send_raw(self, msg):
         self.out_port.send_message(msg)
-
-
-
