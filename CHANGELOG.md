@@ -1,5 +1,9 @@
 # Changelog
 
+### v0.6.3
+
+- Graceful MIDI port I/O opening exception handling.
+
 ### v0.6.2
 
 - Added velocity smoothing: partial solution to seaboard's inaccurate velocity readings by using averaged aftertouch values to dynamically adjust velocity curve so that expected velocity matches intensity of play.
