@@ -202,11 +202,18 @@ if __name__ == '__main__':
     print('MIDI IN/OUT DEVICE SELECTION')
     print('')
 
-    print('Select the Seaboard MIDI input device:')
-    seaboard: MidiIn = open_midiinput()[0]
+    try:
+        print('Select the Seaboard MIDI input device:')
+        seaboard: MidiIn = open_midiinput()[0]
 
-    print('Select the virtual MIDI output port that gets sent to the DAW/VST/Program:')
-    virtual_port: MidiOut = open_midioutput()[0]
+        print('Select the virtual MIDI output port that gets sent to the DAW/VST/Program:')
+        virtual_port: MidiOut = open_midioutput()[0]
+    except Exception:
+        print('\n\n__________________________\nError opening MIDI ports:')
+        traceback.print_exc()
+        input('Press enter to close...')
+        import sys
+        sys.exit(1)
 
     if not has_read_configs:
         print('')
